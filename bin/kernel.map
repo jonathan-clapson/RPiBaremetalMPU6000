@@ -75,6 +75,7 @@ Linker script and memory map
 
 LOAD src/raspi/setup.o
 LOAD src/raspi/vectors.o
+LOAD src/raspi/irq.o
 LOAD src/raspi/main.o
 LOAD src/raspi/mpu60x0.o
 LOAD src/raspi/mpu60x0regs.o
@@ -82,7 +83,7 @@ LOAD src/raspi/spi.o
 LOAD src/raspi/support.o
 LOAD src/raspi/uart.o
 
-.text           0x00008000     0x8878
+.text           0x00008000     0x8958
  *(.text)
  .text          0x00008000      0x56c src/raspi/setup.o
                 0x00008000                asm_start
@@ -96,342 +97,362 @@ LOAD src/raspi/uart.o
                 0x00008584                GET32
                 0x0000858c                GETPC
                 0x00008594                BRANCHTO
- .text          0x00008598      0x154 src/raspi/main.o
-                0x00008598                GPIO_FSEL
-                0x0000862c                not_main
- .text          0x000086ec      0x2b4 src/raspi/mpu60x0.o
-                0x000086ec                mpu60x0_init
-                0x000087a4                mpu60x0_get_reading
- .text          0x000089a0        0x0 src/raspi/mpu60x0regs.o
- .text          0x000089a0      0x1bc src/raspi/spi.o
-                0x000089a0                spi_pin_init
-                0x000089ec                spi_begin
-                0x00008a1c                spi_transfer
-                0x00008a94                spi_write
-                0x00008ae8                spi_read
-                0x00008b40                spi_end
- .text          0x00008b5c       0x1c src/raspi/support.o
-                0x00008b5c                wait
- .text          0x00008b78      0x1bc src/raspi/uart.o
-                0x00008b78                uart_init
-                0x00008c9c                uart_putc
-                0x00008ccc                uart_getc
-                0x00008d0c                uart_puts
- .text          0x00008d34       0xdc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
-                0x00008d34                _sprintf_r
-                0x00008d9c                sprintf
- .text          0x00008e10     0x1ce4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
-                0x00008e10                _svfprintf_r
- *fill*         0x0000aaf4        0x4 00
- .text          0x0000aaf8     0x18d8 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
-                0x0000acd8                _dtoa_r
- .text          0x0000c3d0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
- .text          0x0000c3d0       0xd0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
-                0x0000c3d0                _setlocale_r
-                0x0000c440                __locale_charset
-                0x0000c44c                __locale_mb_cur_max
-                0x0000c45c                __locale_msgcharset
-                0x0000c468                __locale_cjk_lang
-                0x0000c470                _localeconv_r
-                0x0000c47c                setlocale
-                0x0000c494                localeconv
- .text          0x0000c4a0      0x72c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
-                0x0000c4a0                _malloc_r
- .text          0x0000cbcc      0x114 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
-                0x0000cbcc                memchr
- .text          0x0000cce0       0xf0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
-                0x0000cce0                memcpy
- .text          0x0000cdd0        0x8 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
-                0x0000cdd0                __malloc_lock
-                0x0000cdd4                __malloc_unlock
- .text          0x0000cdd8      0xd30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
-                0x0000cdd8                _Balloc
-                0x0000ce64                _Bfree
-                0x0000ce80                __multadd
-                0x0000cf5c                __s2b
-                0x0000d044                __hi0bits
-                0x0000d0a0                __lo0bits
-                0x0000d134                __i2b
-                0x0000d158                __multiply
-                0x0000d340                __pow5mult
-                0x0000d444                __lshift
-                0x0000d550                __mcmp
-                0x0000d5b0                __mdiff
-                0x0000d6f4                __ulp
-                0x0000d758                __b2d
-                0x0000d830                __d2b
-                0x0000d93c                __ratio
-                0x0000d9c4                _mprec_log10
-                0x0000da1c                __copybits
-                0x0000da8c                __any_on
- .text          0x0000db08       0x6c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
-                0x0000db08                __fpclassifyd
- .text          0x0000db74       0x44 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
-                0x0000db74                _sbrk_r
- .text          0x0000dbb8      0x230 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
-                0x0000dbb8                strcmp
- .text          0x0000dde8       0x60 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
-                0x0000dde8                strlen
- .text          0x0000de48     0x101c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
-                0x0000de48                __ssprint_r
-                0x0000dff4                _svfiprintf_r
- .text          0x0000ee64      0x150 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
-                0x0000ee64                initialise_monitor_handles
-                0x0000ee68                _read
-                0x0000ee70                _lseek
-                0x0000ee78                _write
-                0x0000eea8                _open
-                0x0000eeb8                _close
-                0x0000eec0                _exit
-                0x0000eec4                _kill
-                0x0000eecc                _getpid
-                0x0000eed4                _sbrk
-                0x0000eefc                _fstat
-                0x0000ef04                _stat
-                0x0000ef0c                _link
-                0x0000ef14                _unlink
-                0x0000ef1c                _raise
-                0x0000ef20                _gettimeofday
-                0x0000ef48                _times
-                0x0000ef68                _isatty
-                0x0000ef70                _system
-                0x0000ef98                _rename
- .text          0x0000efb4       0x9c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
-                0x0000efb4                _calloc_r
- .text          0x0000f050       0x10 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
-                0x0000f050                __errno
- .text          0x0000f060      0x36c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
-                0x0000f060                _malloc_trim_r
-                0x0000f160                _free_r
- .text          0x0000f3cc      0x134 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
-                0x0000f3cc                memmove
- .text          0x0000f500       0xf4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
-                0x0000f500                memset
- .text          0x0000f5f4      0x56c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
-                0x0000f5f4                _realloc_r
- .text          0x0000fb60      0x1a8 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
-                0x0000fb60                cleanup_glue
-                0x0000fb8c                _reclaim_reent
-                0x0000fc94                _wrapup_reent
- .text          0x0000fd08      0x114 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
-                0x0000fd08                __udivsi3
-                0x0000fd08                __aeabi_uidiv
-                0x0000fdfc                __aeabi_uidivmod
- .text          0x0000fe1c        0x4 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
-                0x0000fe1c                __aeabi_ldiv0
-                0x0000fe1c                __aeabi_idiv0
- .text          0x0000fe20      0x41c /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
-                0x0000fe20                __aeabi_drsub
-                0x0000fe28                __aeabi_dsub
-                0x0000fe28                __subdf3
-                0x0000fe2c                __adddf3
-                0x0000fe2c                __aeabi_dadd
-                0x0001013c                __aeabi_ui2d
-                0x0001013c                __floatunsidf
-                0x00010160                __floatsidf
-                0x00010160                __aeabi_i2d
-                0x00010188                __extendsfdf2
-                0x00010188                __aeabi_f2d
-                0x000101c8                __aeabi_ul2d
-                0x000101c8                __floatundidf
-                0x000101dc                __floatdidf
-                0x000101dc                __aeabi_l2d
- .text          0x0001023c      0x49c /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
-                0x0001023c                __aeabi_dmul
-                0x0001023c                __muldf3
-                0x000104cc                __aeabi_ddiv
-                0x000104cc                __divdf3
- .text          0x000106d8      0x144 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
-                0x000106d8                __gtdf2
-                0x000106d8                __gedf2
-                0x000106e0                __ltdf2
-                0x000106e0                __ledf2
-                0x000106e8                __cmpdf2
-                0x000106e8                __eqdf2
-                0x000106e8                __nedf2
-                0x00010770                __aeabi_cdrcmple
-                0x0001078c                __aeabi_cdcmple
-                0x0001078c                __aeabi_cdcmpeq
-                0x000107a4                __aeabi_dcmpeq
-                0x000107bc                __aeabi_dcmplt
-                0x000107d4                __aeabi_dcmple
-                0x000107ec                __aeabi_dcmpge
-                0x00010804                __aeabi_dcmpgt
- .text          0x0001081c       0x5c /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
-                0x0001081c                __fixdfsi
-                0x0001081c                __aeabi_d2iz
+ .text          0x00008598       0xdc src/raspi/irq.o
+                0x00008598                irq_gpio_falling_edge_en
+                0x000085ec                enable_irq
+                0x00008650                irq_handler
+ .text          0x00008674      0x154 src/raspi/main.o
+                0x00008674                GPIO_FSEL
+                0x00008708                not_main
+ .text          0x000087c8      0x2bc src/raspi/mpu60x0.o
+                0x000087c8                mpu60x0_enable_interrupt
+                0x000087e8                mpu60x0_init
+                0x00008888                mpu60x0_get_reading
+ .text          0x00008a84        0x0 src/raspi/mpu60x0regs.o
+ .text          0x00008a84      0x1bc src/raspi/spi.o
+                0x00008a84                spi_pin_init
+                0x00008ad0                spi_begin
+                0x00008b00                spi_transfer
+                0x00008b78                spi_write
+                0x00008bcc                spi_read
+                0x00008c24                spi_end
+ .text          0x00008c40       0x1c src/raspi/support.o
+                0x00008c40                wait
+ .text          0x00008c5c      0x1bc src/raspi/uart.o
+                0x00008c5c                uart_init
+                0x00008d80                uart_putc
+                0x00008db0                uart_getc
+                0x00008df0                uart_puts
+ .text          0x00008e18       0xdc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
+                0x00008e18                _sprintf_r
+                0x00008e80                sprintf
+ .text          0x00008ef4     0x1ce4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+                0x00008ef4                _svfprintf_r
+ .text          0x0000abd8     0x18d8 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+                0x0000adb8                _dtoa_r
+ .text          0x0000c4b0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
+ .text          0x0000c4b0       0xd0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+                0x0000c4b0                _setlocale_r
+                0x0000c520                __locale_charset
+                0x0000c52c                __locale_mb_cur_max
+                0x0000c53c                __locale_msgcharset
+                0x0000c548                __locale_cjk_lang
+                0x0000c550                _localeconv_r
+                0x0000c55c                setlocale
+                0x0000c574                localeconv
+ .text          0x0000c580      0x72c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
+                0x0000c580                _malloc_r
+ .text          0x0000ccac      0x114 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
+                0x0000ccac                memchr
+ .text          0x0000cdc0       0xf0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
+                0x0000cdc0                memcpy
+ .text          0x0000ceb0        0x8 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
+                0x0000ceb0                __malloc_lock
+                0x0000ceb4                __malloc_unlock
+ .text          0x0000ceb8      0xd30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+                0x0000ceb8                _Balloc
+                0x0000cf44                _Bfree
+                0x0000cf60                __multadd
+                0x0000d03c                __s2b
+                0x0000d124                __hi0bits
+                0x0000d180                __lo0bits
+                0x0000d214                __i2b
+                0x0000d238                __multiply
+                0x0000d420                __pow5mult
+                0x0000d524                __lshift
+                0x0000d630                __mcmp
+                0x0000d690                __mdiff
+                0x0000d7d4                __ulp
+                0x0000d838                __b2d
+                0x0000d910                __d2b
+                0x0000da1c                __ratio
+                0x0000daa4                _mprec_log10
+                0x0000dafc                __copybits
+                0x0000db6c                __any_on
+ .text          0x0000dbe8       0x6c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
+                0x0000dbe8                __fpclassifyd
+ .text          0x0000dc54       0x44 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
+                0x0000dc54                _sbrk_r
+ .text          0x0000dc98      0x230 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
+                0x0000dc98                strcmp
+ .text          0x0000dec8       0x60 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
+                0x0000dec8                strlen
+ .text          0x0000df28     0x101c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+                0x0000df28                __ssprint_r
+                0x0000e0d4                _svfiprintf_r
+ .text          0x0000ef44      0x150 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+                0x0000ef44                initialise_monitor_handles
+                0x0000ef48                _read
+                0x0000ef50                _lseek
+                0x0000ef58                _write
+                0x0000ef88                _open
+                0x0000ef98                _close
+                0x0000efa0                _exit
+                0x0000efa4                _kill
+                0x0000efac                _getpid
+                0x0000efb4                _sbrk
+                0x0000efdc                _fstat
+                0x0000efe4                _stat
+                0x0000efec                _link
+                0x0000eff4                _unlink
+                0x0000effc                _raise
+                0x0000f000                _gettimeofday
+                0x0000f028                _times
+                0x0000f048                _isatty
+                0x0000f050                _system
+                0x0000f078                _rename
+ .text          0x0000f094       0x9c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
+                0x0000f094                _calloc_r
+ .text          0x0000f130       0x10 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
+                0x0000f130                __errno
+ .text          0x0000f140      0x36c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
+                0x0000f140                _malloc_trim_r
+                0x0000f240                _free_r
+ .text          0x0000f4ac      0x134 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
+                0x0000f4ac                memmove
+ .text          0x0000f5e0       0xf4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
+                0x0000f5e0                memset
+ .text          0x0000f6d4      0x56c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
+                0x0000f6d4                _realloc_r
+ .text          0x0000fc40      0x1a8 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+                0x0000fc40                cleanup_glue
+                0x0000fc6c                _reclaim_reent
+                0x0000fd74                _wrapup_reent
+ .text          0x0000fde8      0x114 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
+                0x0000fde8                __udivsi3
+                0x0000fde8                __aeabi_uidiv
+                0x0000fedc                __aeabi_uidivmod
+ .text          0x0000fefc        0x4 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
+                0x0000fefc                __aeabi_ldiv0
+                0x0000fefc                __aeabi_idiv0
+ .text          0x0000ff00      0x41c /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
+                0x0000ff00                __aeabi_drsub
+                0x0000ff08                __aeabi_dsub
+                0x0000ff08                __subdf3
+                0x0000ff0c                __adddf3
+                0x0000ff0c                __aeabi_dadd
+                0x0001021c                __aeabi_ui2d
+                0x0001021c                __floatunsidf
+                0x00010240                __floatsidf
+                0x00010240                __aeabi_i2d
+                0x00010268                __extendsfdf2
+                0x00010268                __aeabi_f2d
+                0x000102a8                __aeabi_ul2d
+                0x000102a8                __floatundidf
+                0x000102bc                __floatdidf
+                0x000102bc                __aeabi_l2d
+ .text          0x0001031c      0x49c /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
+                0x0001031c                __aeabi_dmul
+                0x0001031c                __muldf3
+                0x000105ac                __aeabi_ddiv
+                0x000105ac                __divdf3
+ .text          0x000107b8      0x144 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
+                0x000107b8                __gtdf2
+                0x000107b8                __gedf2
+                0x000107c0                __ltdf2
+                0x000107c0                __ledf2
+                0x000107c8                __cmpdf2
+                0x000107c8                __eqdf2
+                0x000107c8                __nedf2
+                0x00010850                __aeabi_cdrcmple
+                0x0001086c                __aeabi_cdcmple
+                0x0001086c                __aeabi_cdcmpeq
+                0x00010884                __aeabi_dcmpeq
+                0x0001089c                __aeabi_dcmplt
+                0x000108b4                __aeabi_dcmple
+                0x000108cc                __aeabi_dcmpge
+                0x000108e4                __aeabi_dcmpgt
+ .text          0x000108fc       0x5c /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
+                0x000108fc                __fixdfsi
+                0x000108fc                __aeabi_d2iz
 
-.rodata.str1.4  0x00010878       0xd8
+.rodata         0x00010958      0x1b8
+ .rodata        0x00010958        0x8 src/raspi/irq.o
+                0x00010958                IRQ_BITS_PER_REG
+                0x0001095c                GPIO_TOTAL
+ .rodata        0x00010960       0x40 src/raspi/mpu60x0regs.o
+                0x00010960                inv_mpu60x0_gyro_conv_ratio
+                0x00010980                inv_mpu60x0_accl_conv_ratio
+ .rodata        0x000109a0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+ .rodata        0x000109c0        0x4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
+                0x000109c0                _global_impure_ptr
+ *fill*         0x000109c4        0x4 00
+ .rodata        0x000109c8      0x128 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+                0x000109d8                __mprec_tens
+                0x00010aa0                __mprec_tinytens
+                0x00010ac8                __mprec_bigtens
+ .rodata        0x00010af0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+
+.rodata.str1.4  0x00010b10       0xc8
  .rodata.str1.4
-                0x00010878       0x63 src/raspi/main.o
+                0x00010b10       0x63 src/raspi/main.o
                                  0x64 (size before relaxing)
- *fill*         0x000108db        0x1 00
+ *fill*         0x00010b73        0x1 00
  .rodata.str1.4
-                0x000108dc        0xd src/raspi/mpu60x0.o
-                                 0x10 (size before relaxing)
- *fill*         0x000108e9        0x3 00
- .rodata.str1.4
-                0x000108ec       0x42 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+                0x00010b74       0x42 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
                                  0x44 (size before relaxing)
- *fill*         0x0001092e        0x2 00
+ *fill*         0x00010bb6        0x2 00
  .rodata.str1.4
-                0x00010930       0x10 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+                0x00010bb8       0x10 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
                                  0x14 (size before relaxing)
  .rodata.str1.4
-                0x00010940        0x2 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
+                0x00010bc8        0x2 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
                                   0x4 (size before relaxing)
- *fill*         0x00010942        0x2 00
+ *fill*         0x00010bca        0x2 00
  .rodata.str1.4
-                0x00010944        0xc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+                0x00010bcc        0xc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
                                  0x14 (size before relaxing)
  .rodata.str1.4
                 0x00000000       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
 
-.rodata         0x00010950      0x1b0
- .rodata        0x00010950       0x40 src/raspi/mpu60x0regs.o
-                0x00010950                inv_mpu60x0_gyro_conv_ratio
-                0x00010970                inv_mpu60x0_accl_conv_ratio
- .rodata        0x00010990       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
- .rodata        0x000109b0        0x4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
-                0x000109b0                _global_impure_ptr
- *fill*         0x000109b4        0x4 00
- .rodata        0x000109b8      0x128 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
-                0x000109c8                __mprec_tens
-                0x00010a90                __mprec_tinytens
-                0x00010ab8                __mprec_bigtens
- .rodata        0x00010ae0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
-
-.glue_7         0x00010b00        0x0
+.glue_7         0x00010bd8        0x0
  .glue_7        0x00000000        0x0 linker stubs
 
-.glue_7t        0x00010b00        0x0
+.glue_7t        0x00010bd8        0x0
  .glue_7t       0x00000000        0x0 linker stubs
 
-.vfp11_veneer   0x00010b00        0x0
+.vfp11_veneer   0x00010bd8        0x0
  .vfp11_veneer  0x00000000        0x0 linker stubs
 
-.v4_bx          0x00010b00        0x0
+.v4_bx          0x00010bd8        0x0
  .v4_bx         0x00000000        0x0 linker stubs
 
-.iplt           0x00010b00        0x0
+.iplt           0x00010bd8        0x0
  .iplt          0x00000000        0x0 src/raspi/setup.o
 
-.rel.dyn        0x00010b00        0x0
+.rel.dyn        0x00010bd8        0x0
  .rel.iplt      0x00000000        0x0 src/raspi/setup.o
 
-.data           0x00010b00      0x8f0
+.data           0x00010bd8      0x928
  *(.data)
- .data          0x00010b00        0x0 src/raspi/setup.o
- .data          0x00010b00        0x0 src/raspi/vectors.o
- .data          0x00010b00        0x0 src/raspi/main.o
- .data          0x00010b00        0x0 src/raspi/mpu60x0.o
- .data          0x00010b00        0x0 src/raspi/mpu60x0regs.o
- .data          0x00010b00       0x2c src/raspi/spi.o
-                0x00010b00                gpioGPFSEL1
-                0x00010b04                gpioGPFSEL0
-                0x00010b08                SPI0_CONTROL
-                0x00010b0c                SPI0_CLK
-                0x00010b10                SPI0_FIFO
-                0x00010b14                SPI0_DC
-                0x00010b18                SPI0_LTOH
-                0x00010b1c                SPI0_DLEN
-                0x00010b20                gpioGPLEV0
-                0x00010b24                gpioGPCLR0
-                0x00010b28                gpioGPSET0
- .data          0x00010b2c        0x0 src/raspi/support.o
- .data          0x00010b2c        0x0 src/raspi/uart.o
- .data          0x00010b2c        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
- .data          0x00010b2c        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
- .data          0x00010b2c        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
- *fill*         0x00010b2c        0x4 00
- .data          0x00010b30      0x430 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
-                0x00010b30                _impure_ptr
- .data          0x00010f60       0x7c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
-                0x00010f80                __mb_cur_max
- .data          0x00010fdc      0x410 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
-                0x00010fdc                __malloc_av_
-                0x000113e4                __malloc_sbrk_base
-                0x000113e8                __malloc_trim_threshold
- .data          0x000113ec        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
- .data          0x000113ec        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
- .data          0x000113ec        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
- .data          0x000113ec        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
- .data          0x000113ec        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
- .data          0x000113ec        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
- .data          0x000113ec        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
- .data          0x000113ec        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
- .data          0x000113ec        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
- .data          0x000113ec        0x4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
-                0x000113ec                heap_end
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
- .data          0x000113f0        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
-                0x000113f0                __bss_start__ = .
+ .data          0x00010bd8        0x0 src/raspi/setup.o
+ .data          0x00010bd8        0x0 src/raspi/vectors.o
+ .data          0x00010bd8       0x38 src/raspi/irq.o
+                0x00010bd8                GPIO_FEN0
+                0x00010bdc                IRQ_TOTAL
+                0x00010be0                IRQ_IRQ1ENABLE
+                0x00010be4                IRQ_PENDING1
+                0x00010be8                GPIO_INT3
+                0x00010bec                GPIO_INT2
+                0x00010bf0                GPIO_INT1
+                0x00010bf4                GPIO_INT0
+                0x00010bf8                IRQ_BASICDISABLE
+                0x00010bfc                IRQ_IRQ1DISABLE
+                0x00010c00                IRQ_BASICENABLE
+                0x00010c04                IRQ_FIQ_CONTROL
+                0x00010c08                IRQ_BASICPENDING
+                0x00010c0c                IRQBASE
+ .data          0x00010c10        0x0 src/raspi/main.o
+ .data          0x00010c10        0x0 src/raspi/mpu60x0.o
+ .data          0x00010c10        0x0 src/raspi/mpu60x0regs.o
+ .data          0x00010c10       0x2c src/raspi/spi.o
+                0x00010c10                gpioGPFSEL1
+                0x00010c14                gpioGPFSEL0
+                0x00010c18                SPI0_CONTROL
+                0x00010c1c                SPI0_CLK
+                0x00010c20                SPI0_FIFO
+                0x00010c24                SPI0_DC
+                0x00010c28                SPI0_LTOH
+                0x00010c2c                SPI0_DLEN
+                0x00010c30                gpioGPLEV0
+                0x00010c34                gpioGPCLR0
+                0x00010c38                gpioGPSET0
+ .data          0x00010c3c        0x0 src/raspi/support.o
+ .data          0x00010c3c        0x0 src/raspi/uart.o
+ .data          0x00010c3c        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
+ .data          0x00010c3c        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+ .data          0x00010c3c        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+ *fill*         0x00010c3c        0x4 00
+ .data          0x00010c40      0x430 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
+                0x00010c40                _impure_ptr
+ .data          0x00011070       0x7c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+                0x00011090                __mb_cur_max
+ .data          0x000110ec      0x410 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
+                0x000110ec                __malloc_av_
+                0x000114f4                __malloc_sbrk_base
+                0x000114f8                __malloc_trim_threshold
+ .data          0x000114fc        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
+ .data          0x000114fc        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
+ .data          0x000114fc        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
+ .data          0x000114fc        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+ .data          0x000114fc        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
+ .data          0x000114fc        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
+ .data          0x000114fc        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
+ .data          0x000114fc        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
+ .data          0x000114fc        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+ .data          0x000114fc        0x4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+                0x000114fc                heap_end
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
+ .data          0x00011500        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
+                0x00011500                __bss_start__ = .
 
-.igot.plt       0x000113f0        0x0
+.igot.plt       0x00011500        0x0
  .igot.plt      0x00000000        0x0 src/raspi/setup.o
 
-.bss            0x000113f0       0x48
+.bss            0x00011500      0x148
  *(.bss)
- .bss           0x000113f0        0x0 src/raspi/setup.o
- .bss           0x000113f0        0x0 src/raspi/vectors.o
- .bss           0x000113f0        0x0 src/raspi/main.o
- .bss           0x000113f0        0x0 src/raspi/mpu60x0.o
- .bss           0x000113f0        0x0 src/raspi/mpu60x0regs.o
- .bss           0x000113f0        0x0 src/raspi/spi.o
- .bss           0x000113f0        0x0 src/raspi/support.o
- .bss           0x000113f0        0x0 src/raspi/uart.o
- .bss           0x000113f0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
- .bss           0x000113f0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
- .bss           0x000113f0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
- .bss           0x000113f0        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
- .bss           0x000113f0        0xc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
-                0x000113f0                _PathLocale
-                0x000113f4                __mlocale_changed
-                0x000113f8                __nlocale_changed
- .bss           0x000113fc       0x34 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
-                0x000113fc                __malloc_top_pad
-                0x00011400                __malloc_current_mallinfo
-                0x00011428                __malloc_max_sbrked_mem
-                0x0001142c                __malloc_max_total_mem
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
- .bss           0x00011430        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
- COMMON         0x00011430        0x4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
-                0x00011430                prev_heap_end
- COMMON         0x00011434        0x4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
-                0x00011434                errno
-                0x00011438                __bss_end__ = .
+ .bss           0x00011500        0x0 src/raspi/setup.o
+ .bss           0x00011500        0x0 src/raspi/vectors.o
+ .bss           0x00011500      0x100 src/raspi/irq.o
+                0x00011500                irq_handlers
+ .bss           0x00011600        0x0 src/raspi/main.o
+ .bss           0x00011600        0x0 src/raspi/mpu60x0.o
+ .bss           0x00011600        0x0 src/raspi/mpu60x0regs.o
+ .bss           0x00011600        0x0 src/raspi/spi.o
+ .bss           0x00011600        0x0 src/raspi/support.o
+ .bss           0x00011600        0x0 src/raspi/uart.o
+ .bss           0x00011600        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
+ .bss           0x00011600        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+ .bss           0x00011600        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+ .bss           0x00011600        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
+ .bss           0x00011600        0xc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+                0x00011600                _PathLocale
+                0x00011604                __mlocale_changed
+                0x00011608                __nlocale_changed
+ .bss           0x0001160c       0x34 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
+                0x0001160c                __malloc_top_pad
+                0x00011610                __malloc_current_mallinfo
+                0x00011638                __malloc_max_sbrked_mem
+                0x0001163c                __malloc_max_total_mem
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
+ .bss           0x00011640        0x0 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
+ COMMON         0x00011640        0x4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+                0x00011640                prev_heap_end
+ COMMON         0x00011644        0x4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+                0x00011644                errno
+                0x00011648                __bss_end__ = .
 LOAD /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a
 LOAD /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a
 OUTPUT(bin/kernel.elf elf32-littlearm)
@@ -443,79 +464,82 @@ OUTPUT(bin/kernel.elf elf32-littlearm)
  .ARM.attributes
                 0x00000026       0x26 src/raspi/vectors.o
  .ARM.attributes
-                0x0000004c       0x38 src/raspi/main.o
+                0x0000004c       0x38 src/raspi/irq.o
  .ARM.attributes
-                0x00000084       0x38 src/raspi/mpu60x0.o
+                0x00000084       0x38 src/raspi/main.o
  .ARM.attributes
-                0x000000bc       0x38 src/raspi/mpu60x0regs.o
+                0x000000bc       0x38 src/raspi/mpu60x0.o
  .ARM.attributes
-                0x000000f4       0x38 src/raspi/spi.o
+                0x000000f4       0x38 src/raspi/mpu60x0regs.o
  .ARM.attributes
-                0x0000012c       0x38 src/raspi/support.o
+                0x0000012c       0x38 src/raspi/spi.o
  .ARM.attributes
-                0x00000164       0x38 src/raspi/uart.o
+                0x00000164       0x38 src/raspi/support.o
  .ARM.attributes
-                0x0000019c       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
+                0x0000019c       0x38 src/raspi/uart.o
  .ARM.attributes
-                0x000001cc       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+                0x000001d4       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
  .ARM.attributes
-                0x000001fc       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+                0x00000204       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
  .ARM.attributes
-                0x0000022c       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
+                0x00000234       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
  .ARM.attributes
-                0x0000025c       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+                0x00000264       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
  .ARM.attributes
-                0x0000028c       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
+                0x00000294       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
  .ARM.attributes
-                0x000002bc       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
+                0x000002c4       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
  .ARM.attributes
-                0x000002ec       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
+                0x000002f4       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
  .ARM.attributes
-                0x0000031c       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
+                0x00000324       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
  .ARM.attributes
-                0x0000034c       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+                0x00000354       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
  .ARM.attributes
-                0x0000037c       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
+                0x00000384       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
  .ARM.attributes
-                0x000003ac       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
+                0x000003b4       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
  .ARM.attributes
-                0x000003dc       0x16 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
+                0x000003e4       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
  .ARM.attributes
-                0x000003f2       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
+                0x00000414       0x16 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
  .ARM.attributes
-                0x00000422       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+                0x0000042a       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
  .ARM.attributes
-                0x00000452       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+                0x0000045a       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
  .ARM.attributes
-                0x00000482       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
+                0x0000048a       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
  .ARM.attributes
-                0x000004b2       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
+                0x000004ba       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
  .ARM.attributes
-                0x000004e2       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
+                0x000004ea       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
  .ARM.attributes
-                0x00000512       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
+                0x0000051a       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
  .ARM.attributes
-                0x00000542       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
+                0x0000054a       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
  .ARM.attributes
-                0x00000572       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
+                0x0000057a       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
  .ARM.attributes
-                0x000005a2       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+                0x000005aa       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
  .ARM.attributes
-                0x000005d2       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
+                0x000005da       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
  .ARM.attributes
-                0x000005ea       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
+                0x0000060a       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
  .ARM.attributes
-                0x00000602       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
+                0x00000622       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
  .ARM.attributes
-                0x0000061a       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
+                0x0000063a       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
  .ARM.attributes
-                0x00000632       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
+                0x00000652       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
  .ARM.attributes
-                0x0000064a       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
+                0x0000066a       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
+ .ARM.attributes
+                0x00000682       0x18 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
 
 .comment        0x00000000       0x81
- .comment       0x00000000       0x70 src/raspi/main.o
+ .comment       0x00000000       0x70 src/raspi/irq.o
                                  0x71 (size before relaxing)
+ .comment       0x00000000       0x71 src/raspi/main.o
  .comment       0x00000000       0x71 src/raspi/mpu60x0.o
  .comment       0x00000000       0x71 src/raspi/mpu60x0regs.o
  .comment       0x00000000       0x71 src/raspi/spi.o
@@ -545,311 +569,320 @@ OUTPUT(bin/kernel.elf elf32-littlearm)
  .comment       0x00000000       0x12 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
  .comment       0x00000000       0x12 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
 
-.debug_line     0x00000000     0x4153
+.debug_line     0x00000000     0x41b6
  .debug_line    0x00000000       0x61 src/raspi/setup.o
  .debug_line    0x00000061       0x4b src/raspi/vectors.o
- .debug_line    0x000000ac      0x1ca src/raspi/main.o
- .debug_line    0x00000276      0x1b7 src/raspi/mpu60x0.o
- .debug_line    0x0000042d       0xbb src/raspi/mpu60x0regs.o
- .debug_line    0x000004e8      0x132 src/raspi/spi.o
- .debug_line    0x0000061a       0x44 src/raspi/support.o
- .debug_line    0x0000065e       0xf8 src/raspi/uart.o
- .debug_line    0x00000756      0x1ad /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
- .debug_line    0x00000903      0x88f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
- .debug_line    0x00001192      0x667 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
- .debug_line    0x000017f9       0xf2 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
- .debug_line    0x000018eb      0x192 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
- .debug_line    0x00001a7d      0x349 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
- .debug_line    0x00001dc6      0x133 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
- .debug_line    0x00001ef9      0x137 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
- .debug_line    0x00002030      0x104 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
- .debug_line    0x00002134      0x5b0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
- .debug_line    0x000026e4      0x11f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
- .debug_line    0x00002803      0x15e /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
- .debug_line    0x00002961      0x104 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
- .debug_line    0x00002a65       0xf3 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
- .debug_line    0x00002b58      0x55e /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
- .debug_line    0x000030b6      0x130 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
- .debug_line    0x000031e6      0x12d /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
- .debug_line    0x00003313      0x10d /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
- .debug_line    0x00003420      0x226 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
- .debug_line    0x00003646      0x12e /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
- .debug_line    0x00003774      0x122 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
- .debug_line    0x00003896      0x239 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
- .debug_line    0x00003acf      0x18f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
- .debug_line    0x00003c5e       0x8a /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
- .debug_line    0x00003ce8       0x61 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
- .debug_line    0x00003d49      0x164 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
- .debug_line    0x00003ead      0x180 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
- .debug_line    0x0000402d       0xae /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
- .debug_line    0x000040db       0x78 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
+ .debug_line    0x000000ac       0x60 src/raspi/irq.o
+ .debug_line    0x0000010c      0x1ca src/raspi/main.o
+ .debug_line    0x000002d6      0x1ba src/raspi/mpu60x0.o
+ .debug_line    0x00000490       0xbb src/raspi/mpu60x0regs.o
+ .debug_line    0x0000054b      0x132 src/raspi/spi.o
+ .debug_line    0x0000067d       0x44 src/raspi/support.o
+ .debug_line    0x000006c1       0xf8 src/raspi/uart.o
+ .debug_line    0x000007b9      0x1ad /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
+ .debug_line    0x00000966      0x88f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+ .debug_line    0x000011f5      0x667 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+ .debug_line    0x0000185c       0xf2 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
+ .debug_line    0x0000194e      0x192 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+ .debug_line    0x00001ae0      0x349 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
+ .debug_line    0x00001e29      0x133 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
+ .debug_line    0x00001f5c      0x137 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
+ .debug_line    0x00002093      0x104 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
+ .debug_line    0x00002197      0x5b0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+ .debug_line    0x00002747      0x11f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
+ .debug_line    0x00002866      0x15e /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
+ .debug_line    0x000029c4      0x104 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
+ .debug_line    0x00002ac8       0xf3 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
+ .debug_line    0x00002bbb      0x55e /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+ .debug_line    0x00003119      0x130 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+ .debug_line    0x00003249      0x12d /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
+ .debug_line    0x00003376      0x10d /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
+ .debug_line    0x00003483      0x226 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
+ .debug_line    0x000036a9      0x12e /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
+ .debug_line    0x000037d7      0x122 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
+ .debug_line    0x000038f9      0x239 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
+ .debug_line    0x00003b32      0x18f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+ .debug_line    0x00003cc1       0x8a /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
+ .debug_line    0x00003d4b       0x61 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
+ .debug_line    0x00003dac      0x164 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
+ .debug_line    0x00003f10      0x180 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
+ .debug_line    0x00004090       0xae /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
+ .debug_line    0x0000413e       0x78 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
 
-.debug_info     0x00000000     0xe7e0
+.debug_info     0x00000000     0xeab3
  .debug_info    0x00000000       0x61 src/raspi/setup.o
  .debug_info    0x00000061       0x63 src/raspi/vectors.o
- .debug_info    0x000000c4      0x45e src/raspi/main.o
- .debug_info    0x00000522      0x5f4 src/raspi/mpu60x0.o
- .debug_info    0x00000b16       0xd0 src/raspi/mpu60x0regs.o
- .debug_info    0x00000be6      0x392 src/raspi/spi.o
- .debug_info    0x00000f78       0x56 src/raspi/support.o
- .debug_info    0x00000fce      0x3d2 src/raspi/uart.o
- .debug_info    0x000013a0      0x9ee /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
- .debug_info    0x00001d8e     0x1679 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
- .debug_info    0x00003407     0x132a /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
- .debug_info    0x00004731      0x894 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
- .debug_info    0x00004fc5      0xbe5 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
- .debug_info    0x00005baa      0xd81 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
- .debug_info    0x0000692b      0x129 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
- .debug_info    0x00006a54      0x131 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
- .debug_info    0x00006b85      0x8b4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
- .debug_info    0x00007439     0x1682 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
- .debug_info    0x00008abb       0xdb /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
- .debug_info    0x00008b96      0x8f4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
- .debug_info    0x0000948a       0xb8 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
- .debug_info    0x00009542       0xb5 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
- .debug_info    0x000095f7      0xffc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
- .debug_info    0x0000a5f3      0x69c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
- .debug_info    0x0000ac8f      0x9e0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
- .debug_info    0x0000b66f      0x889 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
- .debug_info    0x0000bef8      0xc06 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
- .debug_info    0x0000cafe      0x131 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
- .debug_info    0x0000cc2f      0x117 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
- .debug_info    0x0000cd46      0xcd4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
- .debug_info    0x0000da1a      0xa44 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
- .debug_info    0x0000e45e       0x95 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
- .debug_info    0x0000e4f3       0x95 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
- .debug_info    0x0000e588       0x96 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
- .debug_info    0x0000e61e       0x96 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
- .debug_info    0x0000e6b4       0x96 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
- .debug_info    0x0000e74a       0x96 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
+ .debug_info    0x000000c4      0x31c src/raspi/irq.o
+ .debug_info    0x000003e0      0x45e src/raspi/main.o
+ .debug_info    0x0000083e      0x5ab src/raspi/mpu60x0.o
+ .debug_info    0x00000de9       0xd0 src/raspi/mpu60x0regs.o
+ .debug_info    0x00000eb9      0x392 src/raspi/spi.o
+ .debug_info    0x0000124b       0x56 src/raspi/support.o
+ .debug_info    0x000012a1      0x3d2 src/raspi/uart.o
+ .debug_info    0x00001673      0x9ee /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
+ .debug_info    0x00002061     0x1679 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+ .debug_info    0x000036da     0x132a /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+ .debug_info    0x00004a04      0x894 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
+ .debug_info    0x00005298      0xbe5 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+ .debug_info    0x00005e7d      0xd81 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
+ .debug_info    0x00006bfe      0x129 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
+ .debug_info    0x00006d27      0x131 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
+ .debug_info    0x00006e58      0x8b4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
+ .debug_info    0x0000770c     0x1682 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+ .debug_info    0x00008d8e       0xdb /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
+ .debug_info    0x00008e69      0x8f4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
+ .debug_info    0x0000975d       0xb8 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
+ .debug_info    0x00009815       0xb5 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
+ .debug_info    0x000098ca      0xffc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+ .debug_info    0x0000a8c6      0x69c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+ .debug_info    0x0000af62      0x9e0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
+ .debug_info    0x0000b942      0x889 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
+ .debug_info    0x0000c1cb      0xc06 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
+ .debug_info    0x0000cdd1      0x131 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
+ .debug_info    0x0000cf02      0x117 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
+ .debug_info    0x0000d019      0xcd4 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
+ .debug_info    0x0000dced      0xa44 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+ .debug_info    0x0000e731       0x95 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
+ .debug_info    0x0000e7c6       0x95 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
+ .debug_info    0x0000e85b       0x96 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
+ .debug_info    0x0000e8f1       0x96 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
+ .debug_info    0x0000e987       0x96 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
+ .debug_info    0x0000ea1d       0x96 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
 
-.debug_abbrev   0x00000000     0x30e3
+.debug_abbrev   0x00000000     0x3215
  .debug_abbrev  0x00000000       0x14 src/raspi/setup.o
  .debug_abbrev  0x00000014       0x14 src/raspi/vectors.o
- .debug_abbrev  0x00000028      0x196 src/raspi/main.o
- .debug_abbrev  0x000001be      0x1aa src/raspi/mpu60x0.o
- .debug_abbrev  0x00000368       0x5d src/raspi/mpu60x0regs.o
- .debug_abbrev  0x000003c5      0x1a1 src/raspi/spi.o
- .debug_abbrev  0x00000566       0x48 src/raspi/support.o
- .debug_abbrev  0x000005ae      0x13a src/raspi/uart.o
- .debug_abbrev  0x000006e8      0x218 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
- .debug_abbrev  0x00000900      0x36f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
- .debug_abbrev  0x00000c6f      0x2dc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
- .debug_abbrev  0x00000f4b      0x180 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
- .debug_abbrev  0x000010cb      0x2a3 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
- .debug_abbrev  0x0000136e      0x2a2 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
- .debug_abbrev  0x00001610       0xba /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
- .debug_abbrev  0x000016ca       0xab /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
- .debug_abbrev  0x00001775      0x19a /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
- .debug_abbrev  0x0000190f      0x3aa /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
- .debug_abbrev  0x00001cb9       0x6f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
- .debug_abbrev  0x00001d28      0x1fd /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
- .debug_abbrev  0x00001f25       0x14 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
- .debug_abbrev  0x00001f39       0x70 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
- .debug_abbrev  0x00001fa9      0x2f2 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
- .debug_abbrev  0x0000229b      0x1a3 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
- .debug_abbrev  0x0000243e      0x213 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
- .debug_abbrev  0x00002651      0x18f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
- .debug_abbrev  0x000027e0      0x26b /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
- .debug_abbrev  0x00002a4b       0xab /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
- .debug_abbrev  0x00002af6       0x9f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
- .debug_abbrev  0x00002b95      0x25b /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
- .debug_abbrev  0x00002df0      0x27b /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
- .debug_abbrev  0x0000306b       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
- .debug_abbrev  0x0000307f       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
- .debug_abbrev  0x00003093       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
- .debug_abbrev  0x000030a7       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
- .debug_abbrev  0x000030bb       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
- .debug_abbrev  0x000030cf       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
+ .debug_abbrev  0x00000028      0x120 src/raspi/irq.o
+ .debug_abbrev  0x00000148      0x196 src/raspi/main.o
+ .debug_abbrev  0x000002de      0x1bc src/raspi/mpu60x0.o
+ .debug_abbrev  0x0000049a       0x5d src/raspi/mpu60x0regs.o
+ .debug_abbrev  0x000004f7      0x1a1 src/raspi/spi.o
+ .debug_abbrev  0x00000698       0x48 src/raspi/support.o
+ .debug_abbrev  0x000006e0      0x13a src/raspi/uart.o
+ .debug_abbrev  0x0000081a      0x218 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
+ .debug_abbrev  0x00000a32      0x36f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+ .debug_abbrev  0x00000da1      0x2dc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+ .debug_abbrev  0x0000107d      0x180 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
+ .debug_abbrev  0x000011fd      0x2a3 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+ .debug_abbrev  0x000014a0      0x2a2 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
+ .debug_abbrev  0x00001742       0xba /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
+ .debug_abbrev  0x000017fc       0xab /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
+ .debug_abbrev  0x000018a7      0x19a /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
+ .debug_abbrev  0x00001a41      0x3aa /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+ .debug_abbrev  0x00001deb       0x6f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
+ .debug_abbrev  0x00001e5a      0x1fd /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
+ .debug_abbrev  0x00002057       0x14 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
+ .debug_abbrev  0x0000206b       0x70 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
+ .debug_abbrev  0x000020db      0x2f2 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+ .debug_abbrev  0x000023cd      0x1a3 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+ .debug_abbrev  0x00002570      0x213 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
+ .debug_abbrev  0x00002783      0x18f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
+ .debug_abbrev  0x00002912      0x26b /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
+ .debug_abbrev  0x00002b7d       0xab /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
+ .debug_abbrev  0x00002c28       0x9f /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
+ .debug_abbrev  0x00002cc7      0x25b /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
+ .debug_abbrev  0x00002f22      0x27b /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+ .debug_abbrev  0x0000319d       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x000031b1       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
+ .debug_abbrev  0x000031c5       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
+ .debug_abbrev  0x000031d9       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
+ .debug_abbrev  0x000031ed       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
+ .debug_abbrev  0x00003201       0x14 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
 
-.debug_aranges  0x00000000      0x490
+.debug_aranges  0x00000000      0x4b0
  .debug_aranges
                 0x00000000       0x20 src/raspi/setup.o
  .debug_aranges
                 0x00000020       0x20 src/raspi/vectors.o
  .debug_aranges
-                0x00000040       0x20 src/raspi/main.o
+                0x00000040       0x20 src/raspi/irq.o
  .debug_aranges
-                0x00000060       0x20 src/raspi/mpu60x0.o
+                0x00000060       0x20 src/raspi/main.o
  .debug_aranges
-                0x00000080       0x18 src/raspi/mpu60x0regs.o
+                0x00000080       0x20 src/raspi/mpu60x0.o
  .debug_aranges
-                0x00000098       0x20 src/raspi/spi.o
+                0x000000a0       0x18 src/raspi/mpu60x0regs.o
  .debug_aranges
-                0x000000b8       0x20 src/raspi/support.o
+                0x000000b8       0x20 src/raspi/spi.o
  .debug_aranges
-                0x000000d8       0x20 src/raspi/uart.o
+                0x000000d8       0x20 src/raspi/support.o
  .debug_aranges
-                0x000000f8       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
+                0x000000f8       0x20 src/raspi/uart.o
  .debug_aranges
-                0x00000118       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+                0x00000118       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
  .debug_aranges
-                0x00000138       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+                0x00000138       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
  .debug_aranges
-                0x00000158       0x18 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
+                0x00000158       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
  .debug_aranges
-                0x00000170       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+                0x00000178       0x18 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
  .debug_aranges
-                0x00000190       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
+                0x00000190       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
  .debug_aranges
-                0x000001b0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
+                0x000001b0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
  .debug_aranges
-                0x000001d0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
+                0x000001d0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
  .debug_aranges
-                0x000001f0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
+                0x000001f0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
  .debug_aranges
-                0x00000210       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+                0x00000210       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
  .debug_aranges
-                0x00000230       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
+                0x00000230       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
  .debug_aranges
-                0x00000250       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
+                0x00000250       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
  .debug_aranges
-                0x00000270       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
+                0x00000270       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
  .debug_aranges
-                0x00000290       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
+                0x00000290       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strcmp.o)
  .debug_aranges
-                0x000002b0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+                0x000002b0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
  .debug_aranges
-                0x000002d0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+                0x000002d0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
  .debug_aranges
-                0x000002f0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
+                0x000002f0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
  .debug_aranges
-                0x00000310       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
+                0x00000310       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
  .debug_aranges
-                0x00000330       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
+                0x00000330       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
  .debug_aranges
-                0x00000350       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
+                0x00000350       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
  .debug_aranges
-                0x00000370       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
+                0x00000370       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
  .debug_aranges
-                0x00000390       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
+                0x00000390       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
  .debug_aranges
-                0x000003b0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+                0x000003b0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
  .debug_aranges
-                0x000003d0       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
+                0x000003d0       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
  .debug_aranges
-                0x000003f0       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
+                0x000003f0       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
  .debug_aranges
-                0x00000410       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
+                0x00000410       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_dvmd_tls.o)
  .debug_aranges
-                0x00000430       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
+                0x00000430       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_addsubdf3.o)
  .debug_aranges
-                0x00000450       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
+                0x00000450       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_muldivdf3.o)
  .debug_aranges
-                0x00000470       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
+                0x00000470       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_cmpdf2.o)
+ .debug_aranges
+                0x00000490       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_arm_fixdfsi.o)
 
-.debug_loc      0x00000000     0xc32b
- .debug_loc     0x00000000      0x12a src/raspi/main.o
- .debug_loc     0x0000012a      0x220 src/raspi/mpu60x0.o
- .debug_loc     0x0000034a      0x1dc src/raspi/spi.o
- .debug_loc     0x00000526       0x36 src/raspi/support.o
- .debug_loc     0x0000055c      0x192 src/raspi/uart.o
- .debug_loc     0x000006ee       0x79 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
- .debug_loc     0x00000767     0x219d /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
- .debug_loc     0x00002904     0x3000 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
- .debug_loc     0x00005904      0x100 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
- .debug_loc     0x00005a04      0xcee /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
- .debug_loc     0x000066f2      0x15a /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
- .debug_loc     0x0000684c      0x1c1 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
- .debug_loc     0x00006a0d     0x2890 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
- .debug_loc     0x0000929d       0x84 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
- .debug_loc     0x00009321       0x66 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
- .debug_loc     0x00009387       0x21 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
- .debug_loc     0x000093a8     0x1221 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
- .debug_loc     0x0000a5c9      0x2bb /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
- .debug_loc     0x0000a884      0x20c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
- .debug_loc     0x0000aa90      0x3fc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
- .debug_loc     0x0000ae8c      0x2b0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
- .debug_loc     0x0000b13c      0x175 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
- .debug_loc     0x0000b2b1      0xed3 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
- .debug_loc     0x0000c184      0x1a7 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+.debug_loc      0x00000000     0xc51b
+ .debug_loc     0x00000000      0x1dc src/raspi/irq.o
+ .debug_loc     0x000001dc      0x12a src/raspi/main.o
+ .debug_loc     0x00000306      0x234 src/raspi/mpu60x0.o
+ .debug_loc     0x0000053a      0x1dc src/raspi/spi.o
+ .debug_loc     0x00000716       0x36 src/raspi/support.o
+ .debug_loc     0x0000074c      0x192 src/raspi/uart.o
+ .debug_loc     0x000008de       0x79 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
+ .debug_loc     0x00000957     0x219d /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+ .debug_loc     0x00002af4     0x3000 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+ .debug_loc     0x00005af4      0x100 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+ .debug_loc     0x00005bf4      0xcee /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
+ .debug_loc     0x000068e2      0x15a /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
+ .debug_loc     0x00006a3c      0x1c1 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
+ .debug_loc     0x00006bfd     0x2890 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+ .debug_loc     0x0000948d       0x84 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
+ .debug_loc     0x00009511       0x66 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
+ .debug_loc     0x00009577       0x21 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
+ .debug_loc     0x00009598     0x1221 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+ .debug_loc     0x0000a7b9      0x2bb /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+ .debug_loc     0x0000aa74      0x20c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
+ .debug_loc     0x0000ac80      0x3fc /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
+ .debug_loc     0x0000b07c      0x2b0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
+ .debug_loc     0x0000b32c      0x175 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
+ .debug_loc     0x0000b4a1      0xed3 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
+ .debug_loc     0x0000c374      0x1a7 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
 
-.debug_str      0x00000000     0x1ad9
- .debug_str     0x00000000      0x30d src/raspi/main.o
+.debug_str      0x00000000     0x1c28
+ .debug_str     0x00000000      0x1bb src/raspi/irq.o
+                                0x1cf (size before relaxing)
+ .debug_str     0x000001bb      0x28e src/raspi/main.o
                                 0x361 (size before relaxing)
- .debug_str     0x0000030d      0x18c src/raspi/mpu60x0.o
-                                0x464 (size before relaxing)
- .debug_str     0x00000499       0x18 src/raspi/mpu60x0regs.o
+ .debug_str     0x00000449      0x1a5 src/raspi/mpu60x0.o
+                                0x46b (size before relaxing)
+ .debug_str     0x000005ee       0x18 src/raspi/mpu60x0regs.o
                                 0x174 (size before relaxing)
- .debug_str     0x000004b1       0x85 src/raspi/spi.o
+ .debug_str     0x00000606       0x85 src/raspi/spi.o
                                 0x1d0 (size before relaxing)
- .debug_str     0x00000536       0x1a src/raspi/support.o
+ .debug_str     0x0000068b       0x1a src/raspi/support.o
                                  0x9c (size before relaxing)
- .debug_str     0x00000550       0x39 src/raspi/uart.o
+ .debug_str     0x000006a5       0x33 src/raspi/uart.o
                                 0x15f (size before relaxing)
- .debug_str     0x00000589      0x440 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
+ .debug_str     0x000006d8      0x440 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
                                 0x541 (size before relaxing)
- .debug_str     0x000009c9      0x300 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+ .debug_str     0x00000b18      0x300 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
                                 0x897 (size before relaxing)
- .debug_str     0x00000cc9      0x1a6 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+ .debug_str     0x00000e18      0x1a6 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
                                 0x666 (size before relaxing)
- .debug_str     0x00000e6f       0xa0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
+ .debug_str     0x00000fbe       0xa0 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-impure.o)
                                 0x514 (size before relaxing)
- .debug_str     0x00000f0f      0x16a /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+ .debug_str     0x0000105e      0x16a /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
                                 0x771 (size before relaxing)
- .debug_str     0x00001079      0x239 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
+ .debug_str     0x000011c8      0x239 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
                                 0x723 (size before relaxing)
- .debug_str     0x000012b2       0xa8 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
+ .debug_str     0x00001401       0xa8 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
                                 0x16f (size before relaxing)
- .debug_str     0x0000135a       0x6c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
+ .debug_str     0x000014a9       0x6c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
                                 0x17c (size before relaxing)
- .debug_str     0x000013c6       0x4c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
+ .debug_str     0x00001515       0x4c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
                                 0x51d (size before relaxing)
- .debug_str     0x00001412       0xa2 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+ .debug_str     0x00001561       0xa2 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
                                 0x620 (size before relaxing)
- .debug_str     0x000014b4       0x89 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
+ .debug_str     0x00001603       0x89 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
                                 0x16d (size before relaxing)
- .debug_str     0x0000153d       0x41 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
+ .debug_str     0x0000168c       0x41 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
                                 0x50b (size before relaxing)
- .debug_str     0x0000157e       0x40 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
+ .debug_str     0x000016cd       0x40 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
                                 0x150 (size before relaxing)
- .debug_str     0x000015be       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+ .debug_str     0x0000170d       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
                                 0x69a (size before relaxing)
- .debug_str     0x000015ee      0x28a /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+ .debug_str     0x0000173d      0x28a /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
                                 0x3a2 (size before relaxing)
- .debug_str     0x00001878       0x16 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
+ .debug_str     0x000019c7       0x16 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
                                 0x54d (size before relaxing)
- .debug_str     0x0000188e       0x80 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
+ .debug_str     0x000019dd       0x80 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
                                 0x4fc (size before relaxing)
- .debug_str     0x0000190e       0x34 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
+ .debug_str     0x00001a5d       0x34 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
                                 0x66d (size before relaxing)
- .debug_str     0x00001942       0x8d /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
+ .debug_str     0x00001a91       0x8d /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
                                 0x176 (size before relaxing)
- .debug_str     0x000019cf       0x4c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
+ .debug_str     0x00001b1e       0x4c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
                                 0x157 (size before relaxing)
- .debug_str     0x00001a1b       0x4e /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
+ .debug_str     0x00001b6a       0x4e /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
                                 0x5f5 (size before relaxing)
- .debug_str     0x00001a69       0x70 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+ .debug_str     0x00001bb8       0x70 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
                                 0x541 (size before relaxing)
 
-.debug_frame    0x00000000      0xa1c
- .debug_frame   0x00000000       0x48 src/raspi/main.o
- .debug_frame   0x00000048       0x54 src/raspi/mpu60x0.o
- .debug_frame   0x0000009c       0x90 src/raspi/spi.o
- .debug_frame   0x0000012c       0x20 src/raspi/support.o
- .debug_frame   0x0000014c       0x70 src/raspi/uart.o
- .debug_frame   0x000001bc       0x60 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
- .debug_frame   0x0000021c       0x3c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
- .debug_frame   0x00000258       0x64 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
- .debug_frame   0x000002bc       0x98 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
- .debug_frame   0x00000354       0x38 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
- .debug_frame   0x0000038c       0x2c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
- .debug_frame   0x000003b8       0x2c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
- .debug_frame   0x000003e4       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
- .debug_frame   0x00000414      0x210 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
- .debug_frame   0x00000624       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
- .debug_frame   0x00000644       0x2c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
- .debug_frame   0x00000670       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
- .debug_frame   0x00000690       0x64 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
- .debug_frame   0x000006f4      0x178 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
- .debug_frame   0x0000086c       0x28 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
- .debug_frame   0x00000894       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
- .debug_frame   0x000008b4       0x50 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
- .debug_frame   0x00000904       0x2c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
- .debug_frame   0x00000930       0x2c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
- .debug_frame   0x0000095c       0x38 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
- .debug_frame   0x00000994       0x68 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
- .debug_frame   0x000009fc       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
+.debug_frame    0x00000000      0xa88
+ .debug_frame   0x00000000       0x58 src/raspi/irq.o
+ .debug_frame   0x00000058       0x48 src/raspi/main.o
+ .debug_frame   0x000000a0       0x68 src/raspi/mpu60x0.o
+ .debug_frame   0x00000108       0x90 src/raspi/spi.o
+ .debug_frame   0x00000198       0x20 src/raspi/support.o
+ .debug_frame   0x000001b8       0x70 src/raspi/uart.o
+ .debug_frame   0x00000228       0x60 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sprintf.o)
+ .debug_frame   0x00000288       0x3c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfprintf.o)
+ .debug_frame   0x000002c4       0x64 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-dtoa.o)
+ .debug_frame   0x00000328       0x98 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-locale.o)
+ .debug_frame   0x000003c0       0x38 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mallocr.o)
+ .debug_frame   0x000003f8       0x2c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memchr-stub.o)
+ .debug_frame   0x00000424       0x2c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memcpy-stub.o)
+ .debug_frame   0x00000450       0x30 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mlock.o)
+ .debug_frame   0x00000480      0x210 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-mprec.o)
+ .debug_frame   0x00000690       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-s_fpclassify.o)
+ .debug_frame   0x000006b0       0x2c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-sbrkr.o)
+ .debug_frame   0x000006dc       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-strlen.o)
+ .debug_frame   0x000006fc       0x64 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-svfiprintf.o)
+ .debug_frame   0x00000760      0x178 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-syscalls.o)
+ .debug_frame   0x000008d8       0x28 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-callocr.o)
+ .debug_frame   0x00000900       0x20 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-errno.o)
+ .debug_frame   0x00000920       0x50 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-freer.o)
+ .debug_frame   0x00000970       0x2c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memmove.o)
+ .debug_frame   0x0000099c       0x2c /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-memset.o)
+ .debug_frame   0x000009c8       0x38 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reallocr.o)
+ .debug_frame   0x00000a00       0x68 /mnt/scratch/gnuarm/arm-none-eabi/lib//libc.a(lib_a-reent.o)
+ .debug_frame   0x00000a68       0x20 /mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1/libgcc.a(_udivsi3.o)
 
 .debug_ranges   0x00000000      0x380
  .debug_ranges  0x00000000       0xa0 src/raspi/spi.o

@@ -26,6 +26,11 @@
 #define INV_MPU60x0_BIT_ACCEL_OUT           0x08
 #define INV_MPU60x0_BITS_GYRO_OUT           0x70
 
+#define INV_MPU60x0_REG_INT_PIN_CFG			0x55
+#define INV_MPU60x0_BITS_INT_ACTIVE_LOW		0x80
+#define INV_MPU60x0_BITS_INT_OPEN_DRAIN		0x40
+#define INV_MPU60x0_BITS_INT_LATCH_EN		0x20
+
 #define INV_MPU60x0_REG_INT_ENABLE          0x38
 #define INV_MPU60x0_BIT_DATA_RDY_EN         0x01
 #define INV_MPU60x0_BIT_DMP_INT_EN          0x02
@@ -83,6 +88,7 @@
 #define INV_MPU60x0_ONE_K_HZ				1000
 
 #define INV_MPU60x0_REG_WHO_AM_I			0x75
+#define INV_MPU60x0_BIT_ID					0x68
 
 /* scan element definition */
 enum inv_mpu60x0_scan {

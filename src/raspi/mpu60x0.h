@@ -20,6 +20,6 @@ struct readingsType
 };
 
 void mpu60x0_get_reading(struct mpu60x0_stateType mpu60x0_state, struct readingsType *reading);
-void mpu60x0_init(struct mpu60x0_stateType *mpu60x0_state);
+int mpu60x0_init(struct mpu60x0_stateType *mpu60x0_state);
 
 #endif
