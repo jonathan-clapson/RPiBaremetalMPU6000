@@ -63,6 +63,24 @@ volatile unsigned int *SPI0_DC      =  (unsigned int *) 0x20204014;
 #define GPIO_ALT0		0x4
 /* ... */
 
+uint8_t spi_read(uint8_t reg) 
+{
+	uint8_t ret;
+	spi_begin();
+	spi_transfer(reg|0x80);
+	ret = spi_transfer(0);
+	spi_end();
+	return ret;
+}
+
+void spi_write(uint8_t reg, uint8_t data)
+{
+	spi_begin();
+	spi_transfer(reg);
+	spi_transfer(data);
+	spi_end();
+}
+
 void spi_pin_init(void)
 {
 	unsigned int var;
