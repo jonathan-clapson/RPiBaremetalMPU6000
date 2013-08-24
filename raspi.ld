@@ -7,11 +7,9 @@ MEMORY
 
 SECTIONS
 {
-   .text : {
-      *(.text)
-   } > ram
-   
+   .text : { *(.text) } > ram   
    .data : { *(.data) } > ram
+   
    __bss_start__ = .;
    .bss : { *(.bss) } > ram
    __bss_end__ = .;   

@@ -10,6 +10,7 @@ void uart_init(void);
 void uart_putc(unsigned char c);
 int uart_getc(uint8_t *c);
 void uart_puts(uint8_t *string);
+void uart_putbuf(uint8_t *buf, int count);
 
 #define GPFSEL1 0x20200004
 #define GPSET0  0x2020001C

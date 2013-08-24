@@ -48,11 +48,15 @@ OBJ = $(AOBJ) $(COBJ)
 
 bin/kernel.img: bin/kernel.elf
 	${OBJCOPY} -O binary $< $@
+	${OBJCOPY} bin/kernel.elf -O ihex bin/kernel.hex
+	${OBJCOPY} bin/kernel.elf -O binary bin/kernel.bin
 
 bin/kernel.elf: raspi.ld $(OBJ) 
 	${LD} ${LDFLAGS} $(OBJ) -Map bin/kernel.map -o $@ -T raspi.ld $(LIB) -lc -lgcc
 #../gcc-arm-none-eabi-4_7-2013q2/arm-none-eabi/lib/armv6-m/libc.a ../gcc-arm-none-eabi-4_7-2013q2/lib/gcc/arm-none-eabi/4.7.4/libgcc.a ../gcc-arm-none-eabi-4_7-2013q2/arm-none-eabi/lib/armv6-m/libnosys.a
 #../gcc-arm-none-eabi-4_7-2013q2/arm-none-eabi/lib/armv6-m/libc.a ../gcc-arm-none-eabi-4_7-2013q2/lib/gcc/arm-none-eabi/4.7.4/libgcc.a	
 clean:
-	rm -f bin/*.elf bin/*.img bin/*.map $(OBJ)
-
+	rm -f bin/*.elf bin/*.img bin/*.map bin/*.hex bin/*.bin $(OBJ)
+	
+install:
+	cp -f bin/kernel.img /media/jcla223/boot/kernel.img

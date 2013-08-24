@@ -1,6 +1,7 @@
 #include "uart.h"
 #include "spi.h"
 #include "support.h"
+#include "gpio.h"
 
 void uart_init(void)
 {
@@ -13,28 +14,21 @@ void uart_init(void)
     
     PUT32(AUX_MU_MCR_REG,0);
     PUT32(AUX_MU_IER_REG,0);
-    /*PUT32(AUX_MU_IIR_REG,
+    
+    PUT32(AUX_MU_IIR_REG,
 		AUX_MU_IIR_REG_EN_FIFOS |
 		AUX_MU_IIR_REG_CLR_TX_FIFO |
-		AUX_MU_IIR_REG_CLR_RX_FIFO);*/
-		
-	PUT32(AUX_MU_IIR_REG, 0xc6);
+		AUX_MU_IIR_REG_CLR_RX_FIFO);
 		
     PUT32(AUX_MU_BAUD_REG, 270);
     
     /* set GP14 to alt5 */
-    unsigned int ra;
-    ra=GET32(GPFSEL1);
-    ra&=~(7<<12); //clear GPIO14 bits
-    ra|=2<<12;    //set alt5 on GPIO14
-    PUT32(GPFSEL1,ra);
+    gpio_function_select(GPIO_UART0_TXD, GPIO_FUNC_ALT5);
+    gpio_function_select(GPIO_UART0_RXD, GPIO_FUNC_ALT5);
     
-    /* set GP15 to alt5 */  
-    ra=GET32(GPFSEL1);
-    ra&=~(7<<15); //clear GPIO15 bits
-    ra|=2<<15;    //set alt5 on GPIO15
-    PUT32(GPFSEL1,ra);
-
+    /* disable pullups/pulldowns on txd and rxd pins */
+    unsigned int ra;
+    
     PUT32(GPPUD, GPPUD_DISABLEPULLUPDOWN);
     for(ra=0;ra<150;ra++) dummy(ra);
     
@@ -72,4 +66,10 @@ void uart_puts(uint8_t *string)
 	{
 		uart_putc(*string);
 	}	
+}
+
+void uart_putbuf(uint8_t *buf, int count)
+{
+	for (int i=0; i<count; i++)
+		uart_putc(*buf++);
 }

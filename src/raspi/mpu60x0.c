@@ -6,12 +6,12 @@
 
 void mpu60x0_enable_interrupt( void )
 {
-	//FIXME: do i want open-drain or totem-pole? :S
-	//interrupt is by default active high, enabling latch (int pin is asserted for 50uS then dropped)
-	spi_write(INV_MPU60x0_REG_INT_PIN_CFG, INV_MPU60x0_BITS_INT_LATCH_EN);
+	//interrupt is by default active high, disabling latch (int pin is asserted for 50uS then dropped)
+	//spi_write(INV_MPU60x0_REG_INT_PIN_CFG, INV_MPU60x0_BITS_INT_LATCH_EN);
 	
 	//enable data ready interrupt
-	spi_write(INV_MPU60x0_REG_INT_ENABLE, INV_MPU60x0_BIT_DATA_RDY_EN);	
+	//spi_write(INV_MPU60x0_REG_INT_ENABLE, 0x01);//INV_MPU60x0_BIT_DATA_RDY_EN);	
+	spi_write(INV_MPU60x0_REG_INT_ENABLE, INV_MPU60x0_BIT_DATA_RDY_EN);//INV_MPU60x0_BIT_DATA_RDY_EN);	
 }
 
 int mpu60x0_init(struct mpu60x0_stateType *mpu60x0_state)
@@ -34,8 +34,6 @@ int mpu60x0_init(struct mpu60x0_stateType *mpu60x0_state)
 	spi_write(INV_MPU60x0_REG_USER_CTRL, INV_MPU60x0_BIT_I2C_IF_DIS);
 	//set low pass filter cutoff frequency
 	spi_write(INV_MPU60x0_REG_CONFIG, INV_MPU60x0_FILTER_42HZ);
-	
-	mpu60x0_enable_interrupt();
 		
 	//set gyro scale		
 	mpu60x0_state->gyro_rate = INV_MPU60x0_FSR_2000DPS;
@@ -45,6 +43,8 @@ int mpu60x0_init(struct mpu60x0_stateType *mpu60x0_state)
 	mpu60x0_state->accel_rate = INV_MPU60x0_FS_02G;
 	spi_write(INV_MPU60x0_REG_ACCEL_CONFIG, INV_MPU60x0_FS_02G);
 	
+	mpu60x0_enable_interrupt();
+		
 	return data==INV_MPU60x0_BIT_ID;
 }
 

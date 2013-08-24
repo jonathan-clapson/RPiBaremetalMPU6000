@@ -16,7 +16,7 @@
 
 #include "math.h" 
 
-/*register and associated bit definition*/
+/* register and associated bit definition */
 #define INV_MPU60x0_REG_SAMPLE_RATE_DIV     0x19
 #define INV_MPU60x0_REG_CONFIG              0x1A
 #define INV_MPU60x0_REG_GYRO_CONFIG         0x1B

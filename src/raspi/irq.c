@@ -56,31 +56,23 @@ void c_irq_handler ( void )
 {
 	unsigned int reg;
 	
-	printf("int!\n\r");	
 	//hand off to handlers associated with irq pending1
-	while( (reg = GET32(IRQ_PENDING1)) != 0 )
-	{		
-		for (int i=0; i<IRQ_BITS_PER_REG; i++)
-			if ( (reg&(1<<i)) && irq_handlers[i] )
-			{
-				printf("irq: %d\n", i+IRQ_BITS_PER_REG);
+	while( (reg = GET32(IRQ_PENDING1)) != 0 ) {		
+		for (int i=0; i<IRQ_BITS_PER_REG; i++) {
+			if ( (reg&(1<<i)) && irq_handlers[i] ) {
 				irq_handlers[i]();
+				reg = GET32(IRQ_PENDING1);
 			}
+		}
 	}
 	//hand off to handlers associated with irq pending2
-	while( (reg = GET32(IRQ_PENDING2)) != 0 )
-	{
-		for (int i=0; i<IRQ_BITS_PER_REG; i++)
-			if (reg&(1<<i))
-			{
-				printf("reg2: %x\n", reg);
-				printf("irq: %d\n", i+IRQ_BITS_PER_REG);
-				printf("handler: %p\n", irq_handlers[i+IRQ_BITS_PER_REG]);
-				if ( irq_handlers[i+IRQ_BITS_PER_REG] )
-				{
-					irq_handlers[i+IRQ_BITS_PER_REG]();					
-				}
+	while( (reg = GET32(IRQ_PENDING2)) != 0 ) {
+		for (int i=0; i<IRQ_BITS_PER_REG; i++){
+			if (reg&(1<<i) && irq_handlers[i+IRQ_BITS_PER_REG] ) {
+				irq_handlers[i+IRQ_BITS_PER_REG]();
+				reg = GET32(IRQ_PENDING1);
 			}
+		}
 	}
 }
 

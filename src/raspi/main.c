@@ -9,50 +9,7 @@
 #include "uart.h"
 #include "support.h"
 #include "spi.h"
-
-#define CS 8
-#define SCK 11
-#define MISO 9
-#define MOSI 10
-
-typedef enum{
-  INPUT = 0,
-  OUTPUT = 1,
-  ALT0 = 2,
-  ALT1 = 3,
-  ALT2 = 4,
-  ALT3 = 5,
-  ALT4 = 6,
-  ALT5 = 7
-} FSEL;
-
-
-void GPIO_FSEL(unsigned int pin, FSEL sel)
-{
-	volatile unsigned int* GPIO_BASE = (unsigned int *)0x20200000;
-	unsigned int curState = 0;
-
-	// get right address for pin
-	if(pin >= 10)
-		GPIO_BASE++;
-	if(pin >= 20)
-		GPIO_BASE++;
-	if(pin >= 30)
-		GPIO_BASE++;
-	if(pin >= 40)
-		GPIO_BASE++;
-	if(pin >= 50)
-		GPIO_BASE++;
-
-	pin %= 10; // we can set 10 pins per register
-
-	curState = *(GPIO_BASE);       // get GPIO reg state
-
-	curState &= ~(7 << (pin * 3)); // clear bits in question
-	curState |= sel << (pin * 3);  // set bits in question
-
-	*(GPIO_BASE) = curState;       // write state back to GPIO reg
-}
+#include "gpio.h"
 
 int flag = 0; 
 
@@ -60,27 +17,12 @@ void gpio_irq ( void )
 {
 	volatile unsigned int *GPEDS0 =	(unsigned int*) 0x20200040;
 	volatile unsigned int *GPEDS1 =	(unsigned int*) 0x20200044;
-	
-	printf("gpio_irq\n\r");
 
 	flag = 1;
 	
-	//PUT32(GPEDS0, 0);
-	//PUT32(GPEDS1, 0);
 	*GPEDS0 = 0xFFFFFFFF;
 	*GPEDS1 = 0xFFFFFFFF;
 }
-
-/********************************************************************************************************************************************************
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
- Author    : Geoffrey 
- 
- Date      : 2012
-
- version   :
-
-**********************************************************************************************************************************************************/
 
 extern void enable_interrupts (void);
 
@@ -99,9 +41,7 @@ __attribute__((no_instrument_function)) void not_main(void)
 	sel |= (0b001 << 18);
 	WRITE32(GPFSEL1,sel);
 
-
-	//set gpio 17 as input
-	GPIO_FSEL(17, 0);
+	gpio_function_select(17, GPIO_FUNC_INPUT);
 	
 	c_enable_irq();
 	
@@ -124,39 +64,72 @@ __attribute__((no_instrument_function)) void not_main(void)
 	
 	while(1){
 		struct readingsType reading;
-		
-		mpu60x0_get_reading(mpu60x0_state, &reading);			
-		
-		char tmp[100];
-		sprintf(tmp, "xAccel: %+06f, yAccel: %+06f, zAccel: %+06f, temp: %+06f, xGyro: %+06f, yGyro %+06f, zGyro %+06f\r\n", \
-			reading.accelX, reading.accelY, reading.accelZ, reading.temp, reading.gyroX, reading.gyroY, reading.gyroZ);
-		/*uart_puts((unsigned char*) tmp);*/
 				
 		PUT32(GPCLR0, 1<<16);
 		wait(1000*80);
 		PUT32(GPSET0, 1<<16);
 		wait(1000*80);
 		
-		volatile unsigned int *var = (unsigned int*) 0x20200034;
-		int vari = *var;
-		if (vari & (1<<17))
-		{
-			uart_puts("pinHigh!\n\r");
-		}
-		
-		volatile unsigned int *GPEDS0 = (unsigned int*) 0x20200040;
-		volatile unsigned int *GPEDS1 =	(unsigned int*) 0x20200044;
-		unsigned int reg = *GPEDS0;
-		if (reg != 0)
-		{
-			printf("polled! %x\n\r", reg);
-			*GPEDS0 = 0xFFFFFFFF;
-		}
-		if (flag)
+		//if (flag)
+		if (1)
 		{
 			flag = 0;
-			printf("got irq!\n\r");
+			
+			mpu60x0_get_reading(mpu60x0_state, &reading);
+			
+			char tmp[100];
+			sprintf(tmp, "xAccel: %+06f, yAccel: %+06f, zAccel: %+06f, temp: %+06f, xGyro: %+06f, yGyro %+06f, zGyro %+06f\r\n", \
+				reading.accelX, reading.accelY, reading.accelZ, reading.temp, reading.gyroX, reading.gyroY, reading.gyroZ);
+			
+			uart_puts((unsigned char*) tmp); 
+			
+			struct readingsType dummy;
+			dummy.accelX = 1;
+			dummy.accelY = 2;
+			dummy.accelZ = 3;
+			dummy.temp = 4;
+			dummy.gyroX = 5;
+			dummy.gyroY = 6;
+			dummy.gyroZ = 7;
+			
+			char buf[5000];
+			char chunk[500];
+			buf[0] = '\0';
+			
+			printf("valid hex:");			
+			for (int i =0; i<sizeof(dummy); i++)
+			{
+			/*	if (!(i%8))
+				{
+					uart_puts(buf);
+					uart_putc('\n');
+					buf[0] = '\0';
+				}*/
+				sprintf(chunk, "%2X", ((char *) &dummy)[i]);
+				strcat(buf, chunk);
+			}
+			uart_putc('\r');
+			uart_putc('\n');
+						
+			int i;
+			for (i=0; i<sizeof(dummy); i++)
+			{
+				buf[i] = ((char *) &dummy)[i];
+			}
+			buf[i] = '\r';
+			buf[i+1] = '\n';
+			buf[i+2] = '\0';
+						
+			printf("sizeof dummy is: %d ", sizeof(dummy));
+			printf("writing %d bytes\r\n", strlen(buf));
+			uart_putbuf(buf, strlen(buf));
+			//uart_puts((unsigned char*) buf); 
+			printf("here3\r\n");
+			
+			//uart_putbuf((unsigned char*) &reading, sizeof(reading));
+			//uart_putc('\n');
 		}
-		wait(1000*100);
+		
+		wait(1); //WTF???!!!
 	}
 }
