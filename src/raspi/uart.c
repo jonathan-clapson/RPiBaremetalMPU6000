@@ -39,13 +39,21 @@ void uart_init(void)
     PUT32(AUX_MU_CNTL_REG,0x2|0x1);	
 }
 
-void uart_putc(uint8_t c)
+/*void uart_putc(uint8_t c)
 {
 	while(1) { 
 		uint32_t lsr_reg = GET32(AUX_MU_LSR_REG);
 		if (lsr_reg&AUX_MU_LSR_REG_TX_EMPTY) break; 
 	}
 	PUT32(AUX_MU_IO_REG, c);
+}*/
+void uart_putc ( uint8_t c )
+{
+    while(1)
+    {
+        if(GET32(AUX_MU_LSR_REG)&0x20) break;
+    }
+    PUT32(AUX_MU_IO_REG,c);
 }
 
 int uart_getc(uint8_t *c)

@@ -58,5 +58,7 @@ bin/kernel.elf: raspi.ld $(OBJ)
 clean:
 	rm -f bin/*.elf bin/*.img bin/*.map bin/*.hex bin/*.bin $(OBJ)
 	
-install:
+install: bin/kernel.elf raspi.ld $(OBJ)
 	cp -f bin/kernel.img /media/jcla223/boot/kernel.img
+	umount /media/jcla223/boot
+	umount /media/jcla223/41cd5baa-7a62-4706-b8e8-02c43ccee8d9

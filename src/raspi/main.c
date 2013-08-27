@@ -64,16 +64,11 @@ __attribute__((no_instrument_function)) void not_main(void)
 	
 	while(1){
 		struct readingsType reading;
-				
-		PUT32(GPCLR0, 1<<16);
-		wait(1000*80);
-		PUT32(GPSET0, 1<<16);
-		wait(1000*80);
 		
 		//if (flag)
 		if (1)
 		{
-			flag = 0;
+			//flag = 0;
 			
 			mpu60x0_get_reading(mpu60x0_state, &reading);
 			
@@ -81,53 +76,26 @@ __attribute__((no_instrument_function)) void not_main(void)
 			sprintf(tmp, "xAccel: %+06f, yAccel: %+06f, zAccel: %+06f, temp: %+06f, xGyro: %+06f, yGyro %+06f, zGyro %+06f\r\n", \
 				reading.accelX, reading.accelY, reading.accelZ, reading.temp, reading.gyroX, reading.gyroY, reading.gyroZ);
 			
-			uart_puts((unsigned char*) tmp); 
-			
-			struct readingsType dummy;
-			dummy.accelX = 1;
-			dummy.accelY = 2;
-			dummy.accelZ = 3;
-			dummy.temp = 4;
-			dummy.gyroX = 5;
-			dummy.gyroY = 6;
-			dummy.gyroZ = 7;
-			
-			char buf[5000];
+			uart_puts((unsigned char*) tmp);
+						
 			char chunk[500];
-			buf[0] = '\0';
 			
-			printf("valid hex:");			
-			for (int i =0; i<sizeof(dummy); i++)
+			uart_putc(0x02); //start of text (reading)
+			
+			for (int i =0; i<sizeof(reading); i++)
 			{
-			/*	if (!(i%8))
-				{
-					uart_puts(buf);
-					uart_putc('\n');
-					buf[0] = '\0';
-				}*/
-				sprintf(chunk, "%2X", ((char *) &dummy)[i]);
-				strcat(buf, chunk);
+				sprintf(chunk, "%02X", ((char *) &reading)[i]);
+				uart_puts(chunk);
 			}
+			uart_putc(0x03); //start of text (reading)
 			uart_putc('\r');
 			uart_putc('\n');
-						
-			int i;
-			for (i=0; i<sizeof(dummy); i++)
-			{
-				buf[i] = ((char *) &dummy)[i];
-			}
-			buf[i] = '\r';
-			buf[i+1] = '\n';
-			buf[i+2] = '\0';
-						
-			printf("sizeof dummy is: %d ", sizeof(dummy));
-			printf("writing %d bytes\r\n", strlen(buf));
-			uart_putbuf(buf, strlen(buf));
-			//uart_puts((unsigned char*) buf); 
-			printf("here3\r\n");
 			
-			//uart_putbuf((unsigned char*) &reading, sizeof(reading));
-			//uart_putc('\n');
+			/*PUT32(GPCLR0, 1<<16);
+			wait(1000*1000);
+			PUT32(GPSET0, 1<<16);
+			wait(1000*1000);*/
+						
 		}
 		
 		wait(1); //WTF???!!!
