@@ -24,6 +24,16 @@ void gpio_irq ( void )
 	*GPEDS1 = 0xFFFFFFFF;
 }
 
+/*void gpio_set_cs()
+{
+	gpio_function_select(7, GPIO_FUNC_OUTPUT);	
+}*/
+
+/*void gpio_set_interrupts()
+{
+	gpio_function_select(16, GPIO_FUNC_INPUT);
+}*/
+
 extern void enable_interrupts (void);
 
 __attribute__((no_instrument_function)) void not_main(void)
@@ -34,31 +44,31 @@ __attribute__((no_instrument_function)) void not_main(void)
 	
 	struct mpu60x0_stateType mpu60x0_state;
 	
-	mpu60x0_init(&mpu60x0_state);
+	//mpu60x0_init(&mpu60x0_state);
 	
-	UINT32 sel = READ32(GPFSEL1);
-	sel &= ~(0b111 << 18);
-	sel |= (0b001 << 18);
-	WRITE32(GPFSEL1,sel);
+	//Configure SD Status LED for output
+	gpio_function_select(16, GPIO_FUNC_OUTPUT);
 
-	gpio_function_select(17, GPIO_FUNC_INPUT);
+	/* interrupt pin config */
+	//configure pin 17 as input
+	//gpio_function_select(17, GPIO_FUNC_INPUT);
 	
-	c_enable_irq();
+	//c_enable_irq();
 	
 	//assign function to handle gpio_irqs
-	register_irq_handler ( GPIO_INT0, gpio_irq );
-	register_irq_handler ( GPIO_INT1, gpio_irq );
-	register_irq_handler ( GPIO_INT2, gpio_irq );
-	register_irq_handler ( GPIO_INT3, gpio_irq );
+	//register_irq_handler ( GPIO_INT0, gpio_irq );
+	//register_irq_handler ( GPIO_INT1, gpio_irq );
+	//register_irq_handler ( GPIO_INT2, gpio_irq );
+	//register_irq_handler ( GPIO_INT3, gpio_irq );
 		
-	//enable falling edge detection on irq 17
-	irq_gpio_falling_edge_en(17);
+	/* enable falling edge detection on irq 17 */
+	//irq_gpio_falling_edge_en(17);
 	
 	//enable irq handling on gpio interrupts
-	enable_interrupt_for_irq(GPIO_INT0);
-	enable_interrupt_for_irq(GPIO_INT1);
-	enable_interrupt_for_irq(GPIO_INT2);
-	enable_interrupt_for_irq(GPIO_INT3);
+	//enable_interrupt_for_irq(GPIO_INT0);
+	//enable_interrupt_for_irq(GPIO_INT1);
+	//enable_interrupt_for_irq(GPIO_INT2);
+	//enable_interrupt_for_irq(GPIO_INT3);
 	
 	flag = 0;
 	
@@ -70,7 +80,7 @@ __attribute__((no_instrument_function)) void not_main(void)
 		{
 			//flag = 0;
 			
-			mpu60x0_get_reading(mpu60x0_state, &reading);
+			/*mpu60x0_get_reading(mpu60x0_state, &reading);
 			
 			char tmp[100];
 			sprintf(tmp, "xAccel: %+06f, yAccel: %+06f, zAccel: %+06f, temp: %+06f, xGyro: %+06f, yGyro %+06f, zGyro %+06f\r\n", \
@@ -89,12 +99,12 @@ __attribute__((no_instrument_function)) void not_main(void)
 			}
 			uart_putc(0x03); //start of text (reading)
 			uart_putc('\r');
-			uart_putc('\n');
+			uart_putc('\n');*/
 			
-			/*PUT32(GPCLR0, 1<<16);
+			PUT32(GPCLR0, 1<<16);
 			wait(1000*1000);
 			PUT32(GPSET0, 1<<16);
-			wait(1000*1000);*/
+			wait(1000*1000);
 						
 		}
 		

@@ -61,19 +61,11 @@ void spi_pin_init(void)
 	/* Set gpios to spi mode */
 	gpio_function_select(GPIO_SPI0_MISO, GPIO_FUNC_ALT0);
 	gpio_function_select(GPIO_SPI0_MOSI, GPIO_FUNC_ALT0);
-	gpio_function_select(GPIO_SPI0_CS0, GPIO_FUNC_ALT0);
 	gpio_function_select(GPIO_SPI0_SCK, GPIO_FUNC_ALT0);
 	
-	/*var = *gpioGPFSEL1;
-	var &=~((7<<0) | (7<<3)); // clear function selects
-    var |= ((4<<0) | (4<<3)); // set to alt function ALT0
-	*gpioGPFSEL1 = var;*/
-	
-	/* Set SCLK, CS0 and CS1 to ALT0 (SPI0) */
-	/*var = *gpioGPFSEL0;
-	var &=~((7<<21) | (7<<24) | (7<<27)); // clear function selects
-    var |= ((4<<21) | (4<<24) | (4<<27)); // set to alt function ALT0
-	*gpioGPFSEL0 =var;*/
+	/* chip selects are not setup as all chip selects will operate as gpio chip selects */
+	//gpio_function_select(GPIO_SPI0_CS0, GPIO_FUNC_ALT0);
+	//gpio_function_select(GPIO_SPI0_CS1, GPIO_FUNC_ALT0);
 	
 	/* clear control register */
 	*SPI0_CONTROL = 0;
