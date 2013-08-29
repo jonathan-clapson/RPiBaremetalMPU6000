@@ -11,6 +11,8 @@
 #include "spi.h"
 #include "gpio.h"
 
+#include <math.h>
+
 int flag = 0; 
 
 void gpio_irq ( void )
