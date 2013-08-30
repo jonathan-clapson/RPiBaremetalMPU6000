@@ -10,6 +10,7 @@
 #include "support.h"
 #include "spi.h"
 #include "gpio.h"
+#include "cubePinMapping.h"
 
 #include <math.h>
 
@@ -26,15 +27,25 @@ void gpio_irq ( void )
 	*GPEDS1 = 0xFFFFFFFF;
 }
 
-/*void gpio_set_cs()
+void gpio_set_cs()
 {
-	gpio_function_select(7, GPIO_FUNC_OUTPUT);	
-}*/
+	gpio_function_select(INT1, GPIO_FUNC_OUTPUT);
+	gpio_function_select(INT2, GPIO_FUNC_OUTPUT);
+	gpio_function_select(INT3, GPIO_FUNC_OUTPUT);
+	gpio_function_select(INT4, GPIO_FUNC_OUTPUT);
+	gpio_function_select(INT5, GPIO_FUNC_OUTPUT);
+	gpio_function_select(INT6, GPIO_FUNC_OUTPUT);
+}
 
-/*void gpio_set_interrupts()
+void gpio_set_interrupts()
 {
-	gpio_function_select(16, GPIO_FUNC_INPUT);
-}*/
+	gpio_function_select(CS1, GPIO_FUNC_INPUT);
+	gpio_function_select(CS2, GPIO_FUNC_INPUT);
+	gpio_function_select(CS3, GPIO_FUNC_INPUT);
+	gpio_function_select(CS4, GPIO_FUNC_INPUT);
+	gpio_function_select(CS5, GPIO_FUNC_INPUT);
+	gpio_function_select(CS6, GPIO_FUNC_INPUT);
+}
 
 extern void enable_interrupts (void);
 
