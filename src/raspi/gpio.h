@@ -18,13 +18,19 @@ typedef enum{
   GPIO_FUNC_ALT4 = 3,
   GPIO_FUNC_ALT5 = 2
 } FSEL;
-#define NUM_GPIO_FUNCS 8
+#define GPIO_NUM_FUNCS 8
 
-#define NUM_GPIO_PINS 54
+#define GPIO_NUM_PINS 54
+
+typedef enum {
+	GPIO_OUTPUT_LOW = 0,
+	GPIO_OUTPUT_HIGH = 1
+} GPIO_OUTPUT_LEVEL;
 
 #define GPIO_UART0_TXD 14
 #define GPIO_UART0_RXD 15
 
+/* spi related pin mappings */
 #define GPIO_SPI0_CS1	7
 #define GPIO_SPI0_CS0	8
 #define GPIO_SPI0_MISO	9
@@ -32,5 +38,6 @@ typedef enum{
 #define GPIO_SPI0_SCK	11
 
 int gpio_function_select(unsigned int pin, FSEL sel);
+int gpio_set_output_level (int pin, GPIO_OUTPUT_LEVEL level);
 
 #endif /* __GPIO_H__ */

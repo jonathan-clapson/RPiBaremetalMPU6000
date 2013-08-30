@@ -1,17 +1,19 @@
 #include "uart.h"
 #include <string.h>
 
+extern void enable_irq ( void );
+
 /* while this irq abstraction shows signs of the basic pending irq's, handling of these has not been implemented */
-volatile unsigned int IRQBASE 			=	(unsigned int) 0x2000B000;
-volatile unsigned int IRQ_BASICPENDING = 	(unsigned int) 0x2000B200;
-volatile unsigned int IRQ_PENDING1 	=	(unsigned int) 0x2000B204;
-volatile unsigned int IRQ_PENDING2 	=	(unsigned int) 0x2000B208;
-volatile unsigned int IRQ_FIQ_CONTROL	=	(unsigned int) 0x2000B20C;
-volatile unsigned int IRQ_IRQ1ENABLE	=	(unsigned int) 0x2000B210;
-volatile unsigned int IRQ_IRQ2ENABLE	=	(unsigned int) 0x2000B214;
-volatile unsigned int IRQ_BASICENABLE	=	(unsigned int) 0x2000B218;
-volatile unsigned int IRQ_IRQ1DISABLE	=	(unsigned int) 0x2000B21C;
-volatile unsigned int IRQ_BASICDISABLE	=	(unsigned int) 0x2000B224;
+volatile unsigned int *IRQBASE 			=	(unsigned int*) 0x2000B000;
+volatile unsigned int *IRQ_BASICPENDING = 	(unsigned int*) 0x2000B200;
+volatile unsigned int *IRQ_PENDING1 	=	(unsigned int*) 0x2000B204;
+volatile unsigned int *IRQ_PENDING2 	=	(unsigned int*) 0x2000B208;
+volatile unsigned int *IRQ_FIQ_CONTROL	=	(unsigned int*) 0x2000B20C;
+volatile unsigned int *IRQ_IRQ1ENABLE	=	(unsigned int*) 0x2000B210;
+volatile unsigned int *IRQ_IRQ2ENABLE	=	(unsigned int*) 0x2000B214;
+volatile unsigned int *IRQ_BASICENABLE	=	(unsigned int*) 0x2000B218;
+volatile unsigned int *IRQ_IRQ1DISABLE	=	(unsigned int*) 0x2000B21C;
+volatile unsigned int *IRQ_BASICDISABLE	=	(unsigned int*) 0x2000B224;
 unsigned int IRQ_TOTAL = 64;
 
 /* GPIO Interrupts */
@@ -43,7 +45,9 @@ int enable_interrupt_for_irq(int irq)
 	//if the irq does not exist return invalid
 	if ( irq > IRQ_TOTAL-1 )
 		return -1;
-	volatile unsigned int* irq_reg = IRQ_IRQ1ENABLE + (irq/IRQ_BITS_PER_REG)*4; //select irq register based on irq number
+	
+	//select irq register based on irq number
+	volatile unsigned int* irq_reg = IRQ_IRQ1ENABLE + (irq/IRQ_BITS_PER_REG)*4; 
 	unsigned int irq_bit = 1<<(irq%IRQ_BITS_PER_REG);
 	PUT32(irq_reg, irq_bit);	
 	

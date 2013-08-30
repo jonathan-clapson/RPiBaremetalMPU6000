@@ -19,7 +19,7 @@ struct readingsType
 	double_t gyroZ;	
 };
 
-void mpu60x0_get_reading(struct mpu60x0_stateType mpu60x0_state, struct readingsType *reading);
-int mpu60x0_init(struct mpu60x0_stateType *mpu60x0_state);
+void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, struct readingsType *reading);
+int mpu60x0_init(int device, struct mpu60x0_stateType *mpu60x0_state);
 
 #endif

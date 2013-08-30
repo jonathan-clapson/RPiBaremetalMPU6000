@@ -27,24 +27,14 @@ void gpio_irq ( void )
 	*GPEDS1 = 0xFFFFFFFF;
 }
 
-void gpio_set_cs()
-{
-	gpio_function_select(INT1, GPIO_FUNC_OUTPUT);
-	gpio_function_select(INT2, GPIO_FUNC_OUTPUT);
-	gpio_function_select(INT3, GPIO_FUNC_OUTPUT);
-	gpio_function_select(INT4, GPIO_FUNC_OUTPUT);
-	gpio_function_select(INT5, GPIO_FUNC_OUTPUT);
-	gpio_function_select(INT6, GPIO_FUNC_OUTPUT);
-}
-
 void gpio_set_interrupts()
 {
-	gpio_function_select(CS1, GPIO_FUNC_INPUT);
-	gpio_function_select(CS2, GPIO_FUNC_INPUT);
-	gpio_function_select(CS3, GPIO_FUNC_INPUT);
-	gpio_function_select(CS4, GPIO_FUNC_INPUT);
-	gpio_function_select(CS5, GPIO_FUNC_INPUT);
-	gpio_function_select(CS6, GPIO_FUNC_INPUT);
+	gpio_function_select(INT1, GPIO_FUNC_INPUT);
+	gpio_function_select(INT2, GPIO_FUNC_INPUT);
+	gpio_function_select(INT3, GPIO_FUNC_INPUT);
+	gpio_function_select(INT4, GPIO_FUNC_INPUT);
+	gpio_function_select(INT5, GPIO_FUNC_INPUT);
+	gpio_function_select(INT6, GPIO_FUNC_INPUT);
 }
 
 extern void enable_interrupts (void);
@@ -55,16 +45,16 @@ __attribute__((no_instrument_function)) void not_main(void)
 	uart_init();
 	spi_pin_init();
 	
-	struct mpu60x0_stateType mpu60x0_state;
+	struct mpu60x0_stateType mpu60x0_state[NUM_FACES];
 	
-	//mpu60x0_init(&mpu60x0_state);
+	/* initialise all mpu 6000 boards */
+	for (int i=0; i<sizeof(cs_mappings); i++)
+		mpu60x0_init(cs_mappings[i], &(mpu60x0_state[i]));
 	
 	//Configure SD Status LED for output
 	gpio_function_select(16, GPIO_FUNC_OUTPUT);
-
+	
 	/* interrupt pin config */
-	//configure pin 17 as input
-	//gpio_function_select(17, GPIO_FUNC_INPUT);
 	
 	//c_enable_irq();
 	
@@ -86,22 +76,34 @@ __attribute__((no_instrument_function)) void not_main(void)
 	flag = 0;
 	
 	while(1){
-		struct readingsType reading;
+		struct readingsType reading[NUM_FACES];
 		
 		//if (flag)
 		if (1)
 		{
+			
 			//flag = 0;
 			
-			/*mpu60x0_get_reading(mpu60x0_state, &reading);
+			for (int i=0; i<NUM_FACES; i++)
+			{
+				mpu60x0_get_reading( cs_mappings[i], mpu60x0_state[i], &(reading[i]) );
+				
+				char tmp[100];			
+				sprintf(tmp, "dev: %d, xAccel: %+06f, yAccel: %+06f, zAccel: %+06f, temp: %+06f, xGyro: %+06f, yGyro %+06f, zGyro %+06f\r\n", \
+					i, reading[i].accelX, reading[i].accelY, reading[i].accelZ, reading[i].temp, reading[i].gyroX, reading[i].gyroY, reading[i].gyroZ);
 			
-			char tmp[100];
+				uart_puts((unsigned char*) tmp);
+			}
+			
+			/*char tmp[100];
 			sprintf(tmp, "xAccel: %+06f, yAccel: %+06f, zAccel: %+06f, temp: %+06f, xGyro: %+06f, yGyro %+06f, zGyro %+06f\r\n", \
 				reading.accelX, reading.accelY, reading.accelZ, reading.temp, reading.gyroX, reading.gyroY, reading.gyroZ);
 			
-			uart_puts((unsigned char*) tmp);
+			uart_puts((unsigned char*) tmp);*/
+			
+			
 						
-			char chunk[500];
+			/*char chunk[500];
 			
 			uart_putc(0x02); //start of text (reading)
 			
@@ -114,10 +116,10 @@ __attribute__((no_instrument_function)) void not_main(void)
 			uart_putc('\r');
 			uart_putc('\n');*/
 			
-			PUT32(GPCLR0, 1<<16);
+			/*gpio_set_output_level(16, GPIO_OUTPUT_HIGH);
 			wait(1000*1000);
-			PUT32(GPSET0, 1<<16);
-			wait(1000*1000);
+			gpio_set_output_level(16, GPIO_OUTPUT_LOW);
+			wait(1000*1000);*/
 						
 		}
 		

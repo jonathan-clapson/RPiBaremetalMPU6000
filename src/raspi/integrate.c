@@ -41,13 +41,13 @@ void integrate_vector(struct direcType result[], struct direcType vectors[], int
 		newVect[i].z = findArea(vector[i].z, vector[i+1].z, time_step);
 	}*/
 	
-	result[i].x = findArea(vector[num_elements-1].x, vector[num_elements].x, time_step);
-	result[i].y = findArea(vector[num_elements-1].y, vector[num_elements].y, time_step);
-	result[i].z = findArea(vector[num_elements-1].z, vector[num_elements].z, time_step);
+	result[num_elements-1].x = findArea(vectors[num_elements-1].x, vectors[num_elements].x, time_step);
+	result[num_elements-1].y = findArea(vectors[num_elements-1].y, vectors[num_elements].y, time_step);
+	result[num_elements-1].z = findArea(vectors[num_elements-1].z, vectors[num_elements].z, time_step);
 }
 
 //creates the vector components of a circular acceleration pattern
-void circVects(int vectSize, direcType vector[]){
+/*void circVects(int vectSize, direcType vector[]){
 	
 	const double pi = 4*atan(1);
 	
@@ -62,4 +62,4 @@ void circVects(int vectSize, direcType vector[]){
 	}
 	
 	return;
-}
+}*/

@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
-uint8_t spi_read(uint8_t reg) ;
-void spi_write(uint8_t reg, uint8_t data);
+int spi_read(int pin, uint8_t reg, uint8_t *data);
+int spi_write(int pin, uint8_t reg, uint8_t data);
 void spi_pin_init(void);
-void spi_begin(void);
+int spi_begin(int pin);
 unsigned int spi_transfer(unsigned char value);
-void spi_end(void);
+int spi_end(void);
 
 #endif
