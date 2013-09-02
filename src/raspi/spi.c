@@ -3,7 +3,7 @@
 #include "gpio.h"
 #include "error.h"
 
-#include "cubePinMapping.h"
+#include "config.h"
 
 /* SPI0 Registers */
 volatile unsigned int *SPI0_CONTROL =  (unsigned int *) 0x20204000;
@@ -61,23 +61,6 @@ int spi_write(int pin, uint8_t reg, uint8_t data)
 	return spi_end();	
 }
 
-void gpio_set_cs()
-{		
-	gpio_function_select(CS1, GPIO_FUNC_OUTPUT);
-	gpio_function_select(CS2, GPIO_FUNC_OUTPUT);
-	gpio_function_select(CS3, GPIO_FUNC_OUTPUT);
-	gpio_function_select(CS4, GPIO_FUNC_OUTPUT);
-	gpio_function_select(CS5, GPIO_FUNC_OUTPUT);
-	gpio_function_select(CS6, GPIO_FUNC_OUTPUT);
-	
-	gpio_set_output_level(CS1, GPIO_OUTPUT_HIGH);
-	gpio_set_output_level(CS2, GPIO_OUTPUT_HIGH);
-	gpio_set_output_level(CS3, GPIO_OUTPUT_HIGH);
-	gpio_set_output_level(CS4, GPIO_OUTPUT_HIGH);
-	gpio_set_output_level(CS5, GPIO_OUTPUT_HIGH);
-	gpio_set_output_level(CS6, GPIO_OUTPUT_HIGH);	
-}
-
 void spi_pin_init(void)
 {	
 	/* Set gpios to spi mode */
@@ -90,7 +73,7 @@ void spi_pin_init(void)
 	//gpio_function_select(GPIO_SPI0_CS1, GPIO_FUNC_ALT0);
 	
 	//all the chip selects
-	gpio_set_cs();
+	shape_set_cs();
 	
 	/* clear control register */
 	*SPI0_CONTROL = 0;

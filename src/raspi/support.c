@@ -6,12 +6,14 @@ void wait(unsigned int delay)
 		asm("mov r0, r0");	/* No-op */
 }
 
-void write_mmap_register(volatile unsigned int* reg, unsigned int value)
+void write_mmap_register(volatile unsigned int reg, unsigned int value)
 {
-	*reg = value;
+	volatile unsigned int *mmap_reg = (volatile unsigned int*) reg;
+	*mmap_reg = value;
 }
 
-int read_mmap_register(volatile unsigned int* reg)
+int read_mmap_register(volatile unsigned int reg)
 {
-	return *reg;
+	volatile unsigned int *mmap_reg = (volatile unsigned int*) reg;
+	return *mmap_reg;
 }

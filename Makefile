@@ -38,9 +38,6 @@ vpath %.s $(SRC_DIR)
 
 %.o: %.c
 	$(CC) $(CFLAGS_FOR_TARGET) $(INCLUDES) $(CFLAGS) -c -o $*.o $<
-	echo "includes"
-	echo $(INC_DIR)
-	echo $(INCLUDES)
 	
 %.o: %.s
 	$(AS) $(ASFLAGS_FOR_TARGET) $(INCLUDES) $(ASFLAGS) -o $*.o $<

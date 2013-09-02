@@ -1,5 +1,6 @@
 #include <stdint.h>
 
+#include "support.h"
 #include "mpu60x0regs.h"
 #include "mpu60x0.h"
 #include "spi.h"
@@ -8,10 +9,10 @@
 void mpu60x0_enable_interrupt( int device )
 {
 	//interrupt is by default active high, disabling latch (int pin is asserted for 50uS then dropped)
-	//spi_write(INV_MPU60x0_REG_INT_PIN_CFG, INV_MPU60x0_BITS_INT_LATCH_EN);
+	spi_write(device, INV_MPU60x0_REG_INT_PIN_CFG, INV_MPU60x0_BITS_INT_LATCH_EN);
 	
 	//enable data ready interrupt
-	//spi_write(INV_MPU60x0_REG_INT_ENABLE, 0x01);//INV_MPU60x0_BIT_DATA_RDY_EN);	
+	spi_write(device, INV_MPU60x0_REG_INT_ENABLE, 0x01);//INV_MPU60x0_BIT_DATA_RDY_EN);	
 	spi_write(device, INV_MPU60x0_REG_INT_ENABLE, INV_MPU60x0_BIT_DATA_RDY_EN);//INV_MPU60x0_BIT_DATA_RDY_EN);	
 }
 
@@ -49,7 +50,7 @@ int mpu60x0_init(int device, struct mpu60x0_stateType *mpu60x0_state)
 	return data==INV_MPU60x0_BIT_ID;
 }
 
-void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, struct readingsType *reading)
+void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, struct reading_memory_type *reading)
 {
 	uint8_t byte_H;
 	uint8_t byte_L;
@@ -63,17 +64,17 @@ void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, str
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->accelX = conv/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate]; //fixme!!		
+	reading->a_x = conv/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate]; //fixme!!		
 	// Read AccelY
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->accelY = conv/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate];
+	reading->a_y = conv/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate];
 	// Read AccelZ
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->accelZ = conv/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate];
+	reading->a_z = conv/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate];
 	// Read Temp
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
@@ -83,17 +84,17 @@ void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, str
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->gyroX = conv/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //fixme!!
+	reading->w_x = conv/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //fixme!!
 	// Read GyroY
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->gyroY = conv/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //fixme!!
+	reading->w_y = conv/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //fixme!!
 	// Read GyroZ
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->gyroZ = conv/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //fixme!!
+	reading->w_z = conv/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //fixme!!
 	
 	spi_end();
 }

@@ -3,6 +3,6 @@
 
 #include "integrate.h"
 
-void integrate_vector(struct direcType result[], struct direcType vectors[], int num_elements);
+void integrate_vector(struct vector *result, struct vector *values);
 
 #endif /* __INTEGRATE_H__ */

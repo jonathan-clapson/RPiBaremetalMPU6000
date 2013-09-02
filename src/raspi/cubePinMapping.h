@@ -27,6 +27,6 @@
 #define MPU_DEV5 CS5
 #define MPU_DEV6 CS6
 
-extern uint8_t cs_mappings[NUM_FACES];
+extern char shape_cs_mappings[];
 
 #endif /* __CUBEPINMAPPING_H__ */

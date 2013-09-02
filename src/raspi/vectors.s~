@@ -20,11 +20,9 @@ data_handler:       .word hang
 unused_handler:     .word hang
 irq_handler:        .word irq
 fiq_handler:        .word hang
-    
-
 
 reset:
-    mov r0,#0x200000
+    mov r0,#0x8000
     mov r1,#0x0000
     ldmia r0!,{r2,r3,r4,r5,r6,r7,r8,r9}
     stmia r1!,{r2,r3,r4,r5,r6,r7,r8,r9}

@@ -60,10 +60,13 @@ void c_irq_handler ( void )
 {
 	unsigned int reg;
 	
+	uart_puts("irq_entered!\n");
+	
 	//hand off to handlers associated with irq pending1
 	while( (reg = GET32(IRQ_PENDING1)) != 0 ) {		
 		for (int i=0; i<IRQ_BITS_PER_REG; i++) {
 			if ( (reg&(1<<i)) && irq_handlers[i] ) {
+				uart_puts("irq1!\n");
 				irq_handlers[i]();
 				reg = GET32(IRQ_PENDING1);
 			}
@@ -73,6 +76,7 @@ void c_irq_handler ( void )
 	while( (reg = GET32(IRQ_PENDING2)) != 0 ) {
 		for (int i=0; i<IRQ_BITS_PER_REG; i++){
 			if (reg&(1<<i) && irq_handlers[i+IRQ_BITS_PER_REG] ) {
+				uart_puts("irq2!\n");
 				irq_handlers[i+IRQ_BITS_PER_REG]();
 				reg = GET32(IRQ_PENDING1);
 			}
@@ -99,6 +103,3 @@ void c_enable_irq( void )
     memset(irq_handlers, 0, sizeof(irq_handlers));    
     enable_irq();
 }
-    
-
-    

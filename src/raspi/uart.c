@@ -1,7 +1,12 @@
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+
 #include "uart.h"
-#include "spi.h"
 #include "support.h"
 #include "gpio.h"
+
+#include "mpu60x0.h"
 
 void uart_init(void)
 {
@@ -39,15 +44,7 @@ void uart_init(void)
     PUT32(AUX_MU_CNTL_REG,0x2|0x1);	
 }
 
-/*void uart_putc(uint8_t c)
-{
-	while(1) { 
-		uint32_t lsr_reg = GET32(AUX_MU_LSR_REG);
-		if (lsr_reg&AUX_MU_LSR_REG_TX_EMPTY) break; 
-	}
-	PUT32(AUX_MU_IO_REG, c);
-}*/
-void uart_putc ( uint8_t c )
+void uart_putc ( char c )
 {
     while(1)
     {
@@ -56,7 +53,7 @@ void uart_putc ( uint8_t c )
     PUT32(AUX_MU_IO_REG,c);
 }
 
-int uart_getc(uint8_t *c)
+int uart_getc(char *c)
 {
 	/* if data is available return it, otherwise indicate failure */
 	uint32_t lsr_reg = GET32(AUX_MU_LSR_REG);
@@ -68,7 +65,26 @@ int uart_getc(uint8_t *c)
 	return -1;
 }
 
-void uart_puts(uint8_t *string)
+void uart_get_line(char *buf, size_t len)
+{
+	int i;
+	for (i=0; i<len-1; i++)
+	{
+		uart_puts("loop\n");
+		//block until get a character
+		while (uart_getc(buf+i) != 0);
+		
+		//strip line endings, end string on \n
+		if (buf[i] == '\r')
+			i--;
+		if (buf[i] == '\n')
+			break;
+	}
+	//make it a cstring
+	buf[i] = '\0';
+}
+
+void uart_puts(char *string)
 {
 	for (; *string != '\0'; string++)
 	{
@@ -76,8 +92,26 @@ void uart_puts(uint8_t *string)
 	}	
 }
 
-void uart_putbuf(uint8_t *buf, int count)
+void uart_putbuf(char *buf, int count)
 {
 	for (int i=0; i<count; i++)
 		uart_putc(*buf++);
+}
+
+void uart_put_readings(struct reading_memory_type *reading_memory, int num_faces)
+{
+	char chunk[500];
+	
+	uart_putc(0x02); //start of text (reading)
+	uart_putc(num_faces);
+	
+	for (int i=0; i<sizeof(reading_memory); i++)
+	{
+		char* cur_values = (char*) reading_memory;
+		sprintf(chunk, "%02X", cur_values[i]);
+		uart_puts(chunk);
+	}
+	uart_putc(0x03); //end of text (reading)
+	uart_putc('\r');
+	uart_putc('\n');	
 }
