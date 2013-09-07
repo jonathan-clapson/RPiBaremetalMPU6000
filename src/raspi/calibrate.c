@@ -24,13 +24,26 @@ void find_orientation(struct reading_memory_type *reading_memory, double orienta
 	}	
 }
 
+/*void remove_orientation_bias(struct reading_memory_type *reading_memory, double orientations[NUM_FACES][sizeof(struct reading_memory_type)/sizeof(double)])
+{
+	double *reading_ptr = (double *) results;
+	
+	int num_iters = sizeof(struct reading_memory_type)*NUM_FACES/sizeof(double);
+	for (int i=0; i<NUM_FACES; i++)
+	{
+		for (int j=0; j<sizeof(struct reading_memory_type)/sizeof(double); j++)
+			reading_ptr[i] -= orientations[i][j];
+	}
+	
+}*/
+
 /* 
  * used to update the current totals of all sensors
  */
 void sum_results(struct reading_memory_type *results, struct reading_memory_type *values)
 {
-	double *result_ptr = (double *) values;
-	double *values_ptr = (double *) results;
+	double *result_ptr = (double *) results;
+	double *values_ptr = (double *) values;
 	
 	int num_iters = sizeof(struct reading_memory_type)*NUM_FACES/sizeof(double);
 	for (int i=0; i<num_iters; i++)
@@ -44,7 +57,7 @@ void compute_averages(struct reading_memory_type *averages, struct reading_memor
 	
 	int num_iters = sizeof(struct reading_memory_type)*NUM_FACES/sizeof(double);
 	for (int i=0; i<num_iters; i++)
-		totals_ptr[i] = averages_ptr[i]/divisor;	
+		averages_ptr[i] = totals_ptr[i]/divisor;	
 }
 /*
  * main routine to statically calibrate sensors 
@@ -78,11 +91,15 @@ void static_calibration(struct mpu60x0_stateType *mpu60x0_state)
 			divisor++;
 			
 			mpu60x0_get_reading( shape_cs_mappings[i], mpu60x0_state[i], &(reading_memory[i]) );
-
+			
 			sum_results(totals, reading_memory);
 			
 			compute_averages(averages, totals, (double) divisor);
 			
+			printf("divisor: %f\n", divisor);
+			uart_puts("readings:\n");
+			uart_put_readings(reading_memory, NUM_FACES);
+			uart_puts("averages:\n");			
 			uart_put_readings(averages, NUM_FACES);
 			
 			/*struct vector* result = NULL;
@@ -101,8 +118,7 @@ void static_calibration(struct mpu60x0_stateType *mpu60x0_state)
 			/* get orientation update */
 			/*result = (struct vector *) &(reading_memory[i].o_x);
 			values = (struct vector *) &(reading_memory[i].w_x);
-			integrate_vector(result, values);*/
-			
+			integrate_vector(result, values);*/			
 		}
 	}
 	

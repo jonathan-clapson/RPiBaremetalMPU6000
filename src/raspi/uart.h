@@ -15,6 +15,7 @@ void uart_get_line(char *buf, size_t len);
 void uart_puts(char *string);
 void uart_putbuf(char *buf, int count);
 void uart_put_readings(struct reading_memory_type *reading_memory, int num_faces);
+int calc_baud_num(int baud);
 
 #define GPFSEL1 0x20200004
 #define GPSET0  0x2020001C

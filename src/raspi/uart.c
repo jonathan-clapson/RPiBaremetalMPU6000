@@ -8,6 +8,15 @@
 
 #include "mpu60x0.h"
 
+int calc_baud_num(int baud)
+{
+	const int SYSCLK_FREQ = 250000000;	
+	
+	int regval = SYSCLK_FREQ/((8*baud) -1);
+	
+	return regval;
+}
+
 void uart_init(void)
 {
 	//enable 
@@ -25,7 +34,7 @@ void uart_init(void)
 		AUX_MU_IIR_REG_CLR_TX_FIFO |
 		AUX_MU_IIR_REG_CLR_RX_FIFO);
 		
-    PUT32(AUX_MU_BAUD_REG, 270);
+    PUT32(AUX_MU_BAUD_REG, calc_baud_num(2000000));
     
     /* set GP14 to alt5 */
     gpio_function_select(GPIO_UART0_TXD, GPIO_FUNC_ALT5);
@@ -70,7 +79,6 @@ void uart_get_line(char *buf, size_t len)
 	int i;
 	for (i=0; i<len-1; i++)
 	{
-		uart_puts("loop\n");
 		//block until get a character
 		while (uart_getc(buf+i) != 0);
 		
@@ -104,8 +112,8 @@ void uart_put_readings(struct reading_memory_type *reading_memory, int num_faces
 	
 	uart_putc(0x02); //start of text (reading)
 	uart_putc(num_faces);
-	
-	for (int i=0; i<sizeof(reading_memory); i++)
+
+	for (int i=0; i<sizeof(struct reading_memory_type)*num_faces; i++)
 	{
 		char* cur_values = (char*) reading_memory;
 		sprintf(chunk, "%02X", cur_values[i]);

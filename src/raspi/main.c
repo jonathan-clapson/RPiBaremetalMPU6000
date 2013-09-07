@@ -79,9 +79,13 @@ __attribute__((no_instrument_function)) void not_main(void)
 	
 	flag = 0;
 	
-	struct reading_memory_type reading_memory[NUM_FACES] = {{0}}; /* = malloc(read_rate*read_time*sizeof(struct reading_memory_type)*NUM_FACES); */
-
 	struct mpu60x0_stateType mpu60x0_state[NUM_FACES];
+	for (int i=0; i<NUM_FACES; i++)
+	{
+		mpu60x0_state[i].gyro_rate = INV_MPU60x0_FSR_250DPS;
+		mpu60x0_state[i].accel_rate = INV_MPU60x0_FS_02G;
+		mpu60x0_state[i].filter_cutoff = INV_MPU60x0_FILTER_256HZ_NOLPF2;
+	}
 	
 	int init_failed = 0;
 	/* initialise all mpu 6000 boards */
@@ -93,8 +97,8 @@ __attribute__((no_instrument_function)) void not_main(void)
 			printf("MPUDev: %d failed\n", i);
 		}
 	}
-	/*if (init_failed)
-		return;*/
+	if (init_failed)
+		return;
 		
 	//Configure SD Status LED for output
 	gpio_function_select(16, GPIO_FUNC_OUTPUT);
@@ -127,77 +131,7 @@ __attribute__((no_instrument_function)) void not_main(void)
 			static_calibration(mpu60x0_state);
 			return;
 		default:
+			main_debug(mpu60x0_state);
 			break;
-	}
-	
-	while(1){
-		//if ( falling edge detected say so )
-		if (flag)
-		{
-			uart_puts("got int!\n");
-		}
-		if (1)
-		{			
-			//flag = 0;
-			
-			
-			for (int i=0; i<NUM_FACES; i++)
-			{
-				mpu60x0_get_reading( shape_cs_mappings[i], mpu60x0_state[i], &(reading_memory[i]) );
-
-				struct vector* result = NULL;
-				struct vector* values = NULL;
-				
-				/* get velocity update */
-				result = (struct vector *) &(reading_memory[i].v_x);
-				values = (struct vector *) &(reading_memory[i].a_x);
-				integrate_vector(result, values);
-				
-				/* get position update */
-				result = (struct vector *) &(reading_memory[i].x);
-				values = (struct vector *) &(reading_memory[i].v_x);
-				integrate_vector(result, values);
-				
-				/* get orientation update */
-				result = (struct vector *) &(reading_memory[i].o_x);
-				values = (struct vector *) &(reading_memory[i].w_x);
-				integrate_vector(result, values);
-				
-				/*char tmp[100];			
-				sprintf(tmp, "dev: %d, xAccel: %+06f, yAccel: %+06f, zAccel: %+06f, temp: %+06f, xGyro: %+06f, yGyro %+06f, zGyro %+06f\r\n", \
-					i, reading_memory[i].a_x, reading_memory[i].a_y, reading_memory[i].a_z, reading_memory[i].temp, \
-					reading_memory[i].w_x, reading_memory[i].w_y, reading_memory[i].w_z);
-			
-				uart_puts((unsigned char*) tmp);*/
-			}
-			
-			/*char tmp[100];
-			sprintf(tmp, "xAccel: %+06f, yAccel: %+06f, zAccel: %+06f, temp: %+06f, xGyro: %+06f, yGyro %+06f, zGyro %+06f\r\n", \
-				reading.accelX, reading.accelY, reading.accelZ, reading.temp, reading.gyroX, reading.gyroY, reading.gyroZ);
-			
-			uart_puts((unsigned char*) tmp);*/
-					
-			char chunk[500];
-			
-			uart_putc(0x02); //start of text (reading)
-			uart_putc(NUM_FACES);
-			
-			for (int i=0; i<sizeof(reading_memory); i++)
-			{
-				char* cur_values = (char*) reading_memory;
-				sprintf(chunk, "%02X", cur_values[i]);
-				uart_puts(chunk);
-			}
-			uart_putc(0x03); //end of text (reading)
-			uart_putc('\r');
-			uart_putc('\n');
-			
-			/*gpio_set_output_level(16, GPIO_OUTPUT_HIGH);
-			wait(1000*1000);
-			gpio_set_output_level(16, GPIO_OUTPUT_LOW);
-			wait(1000*1000);*/
-		}
-		
-		wait(1); //WTF???!!!
 	}
 }

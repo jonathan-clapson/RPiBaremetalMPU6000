@@ -6,6 +6,7 @@
 struct mpu60x0_stateType {
 	enum inv_mpu60x0_gyro_fsr_e	gyro_rate;
 	enum inv_mpu60x0_accl_fs_e	accel_rate;	
+	enum inv_mpu60x0_filter_e filter_cutoff;
 };
 
 struct reading_memory_type {

@@ -35,15 +35,16 @@ int mpu60x0_init(int device, struct mpu60x0_stateType *mpu60x0_state)
 	//disable i2c slave interface
 	spi_write(device, INV_MPU60x0_REG_USER_CTRL, INV_MPU60x0_BIT_I2C_IF_DIS);
 	//set low pass filter cutoff frequency
-	spi_write(device, INV_MPU60x0_REG_CONFIG, INV_MPU60x0_FILTER_42HZ);
+	//spi_write(device, INV_MPU60x0_REG_CONFIG, INV_MPU60x0_FILTER_5HZ);
+	spi_write(device, INV_MPU60x0_REG_CONFIG, mpu60x0_state->filter_cutoff);
 		
 	//set gyro scale		
-	mpu60x0_state->gyro_rate = INV_MPU60x0_FSR_2000DPS;
-	spi_write(device, INV_MPU60x0_REG_GYRO_CONFIG, INV_MPU60x0_FSR_2000DPS);
+	mpu60x0_state->gyro_rate = INV_MPU60x0_FSR_250DPS;
+	spi_write(device, INV_MPU60x0_REG_GYRO_CONFIG, mpu60x0_state->gyro_rate);
 	
 	//set accel scale
 	mpu60x0_state->accel_rate = INV_MPU60x0_FS_02G;
-	spi_write(device, INV_MPU60x0_REG_ACCEL_CONFIG, INV_MPU60x0_FS_02G);
+	spi_write(device, INV_MPU60x0_REG_ACCEL_CONFIG, mpu60x0_state->accel_rate);
 	
 	mpu60x0_enable_interrupt(device);
 		
@@ -55,6 +56,7 @@ void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, str
 	uint8_t byte_H;
 	uint8_t byte_L;
 	int16_t conv;
+	double conv_double;
 			
 	// We start a SPI multibyte read of sensors
 	spi_begin(device);
@@ -64,37 +66,98 @@ void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, str
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->a_x = conv/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate]; //fixme!!		
+	conv_double = conv;
+	reading->a_x = (double) conv/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate]; //FIXME:
 	// Read AccelY
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->a_y = conv/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate];
+	conv_double = conv;
+	reading->a_y = conv_double/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate];
 	// Read AccelZ
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->a_z = conv/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate];
+	conv_double = conv;
+	reading->a_z = conv_double/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate];
 	// Read Temp
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->temp = conv/340.0 + 36.53;
+	conv_double = conv;
+	reading->temp = conv_double/340.0 + 36.53;
 	// Read GyroX
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->w_x = conv/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //fixme!!
+	conv_double = conv;
+	reading->w_x = conv_double/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //FIXME:
 	// Read GyroY
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->w_y = conv/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //fixme!!
+	conv_double = conv;
+	reading->w_y = conv_double/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //fixme!!
 	// Read GyroZ
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
-	reading->w_z = conv/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //fixme!!
+	conv_double = conv;
+	reading->w_z = conv_double/inv_mpu60x0_gyro_conv_ratio[mpu60x0_state.gyro_rate]; //fixme!!
+	
+	spi_end();
+}
+
+/*
+ * This is a fake raw function, it doesn't actually pass the raw data, but converts the raw data to a double so i can be lazy :)
+ */
+void mpu60x0_get_reading_raw(int device, struct reading_memory_type *reading)
+{
+	uint8_t byte_H;
+	uint8_t byte_L;
+	int16_t conv;
+	double conv_double;
+			
+	// We start a SPI multibyte read of sensors
+	spi_begin(device);
+	spi_transfer(INV_MPU60x0_REG_RAW_ACCEL|0x80);
+	
+	// Read AccelX
+	byte_H = spi_transfer(0);
+	byte_L = spi_transfer(0);
+	conv = ((int16_t)byte_H<<8)| byte_L;
+	reading->a_x = (double) conv;
+	
+	// Read AccelY
+	byte_H = spi_transfer(0);
+	byte_L = spi_transfer(0);
+	conv = ((int16_t)byte_H<<8)| byte_L;
+	reading->a_y = (double) conv;
+	// Read AccelZ
+	byte_H = spi_transfer(0);
+	byte_L = spi_transfer(0);
+	conv = ((int16_t)byte_H<<8)| byte_L;
+	reading->a_z = (double) conv;
+	// Read Temp
+	byte_H = spi_transfer(0);
+	byte_L = spi_transfer(0);
+	conv = ((int16_t)byte_H<<8)| byte_L;
+	reading->temp = (double) conv;
+	// Read GyroX
+	byte_H = spi_transfer(0);
+	byte_L = spi_transfer(0);
+	conv = ((int16_t)byte_H<<8)| byte_L;
+	reading->w_x = (double) conv;
+	// Read GyroY
+	byte_H = spi_transfer(0);
+	byte_L = spi_transfer(0);
+	conv = ((int16_t)byte_H<<8)| byte_L;
+	reading->w_y = (double) conv;
+	// Read GyroZ
+	byte_H = spi_transfer(0);
+	byte_L = spi_transfer(0);
+	conv = ((int16_t)byte_H<<8)| byte_L;
+	reading->w_z = (double) conv;
 	
 	spi_end();
 }

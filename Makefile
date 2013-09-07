@@ -15,6 +15,7 @@ PLATFORM = raspi
 #ASFLAGS =
 
 CFLAGS = -O2 -nostartfiles -ffreestanding -g -std=gnu99 -Wall -D__$(PLATFORM)__ -DRASPBERRY_PI -fno-builtin
+#CFLAGS = -O0 -nostartfiles -ffreestanding -g -std=gnu99 -Wall -D__$(PLATFORM)__ -DRASPBERRY_PI -fno-builtin
 ASFLAGS = -g
 
 CFLAGS_FOR_TARGET = -mcpu=arm1176jzf-s
