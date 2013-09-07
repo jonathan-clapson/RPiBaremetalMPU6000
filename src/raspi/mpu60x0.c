@@ -5,6 +5,7 @@
 #include "mpu60x0.h"
 #include "spi.h"
 #include "uart.h"
+#include "systimer.h"
 
 void mpu60x0_enable_interrupt( int device )
 {
@@ -58,16 +59,18 @@ void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, str
 	int16_t conv;
 	double conv_double;
 			
+	reading->timestamp = systimer_get_32bit_time();
+
 	// We start a SPI multibyte read of sensors
 	spi_begin(device);
-	spi_transfer(INV_MPU60x0_REG_RAW_ACCEL|0x80);
+	spi_transfer(INV_MPU60x0_REG_RAW_ACCEL|0x80);	
 	
 	// Read AccelX
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
 	conv = ((int16_t)byte_H<<8)| byte_L;
 	conv_double = conv;
-	reading->a_x = (double) conv/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate]; //FIXME:
+	reading->a_x = conv_double/inv_mpu60x0_accl_conv_ratio[mpu60x0_state.accel_rate]; //FIXME:
 	// Read AccelY
 	byte_H = spi_transfer(0);
 	byte_L = spi_transfer(0);
@@ -116,7 +119,8 @@ void mpu60x0_get_reading_raw(int device, struct reading_memory_type *reading)
 	uint8_t byte_H;
 	uint8_t byte_L;
 	int16_t conv;
-	double conv_double;
+	
+	reading->timestamp = systimer_get_32bit_time();
 			
 	// We start a SPI multibyte read of sensors
 	spi_begin(device);
