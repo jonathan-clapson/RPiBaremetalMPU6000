@@ -59,7 +59,7 @@ void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, str
 	int16_t conv;
 	double conv_double;
 			
-	reading->timestamp = systimer_get_32bit_time();
+	reading->timestamp = systimer_get_us_32bit();
 
 	// We start a SPI multibyte read of sensors
 	spi_begin(device);
@@ -120,7 +120,7 @@ void mpu60x0_get_reading_raw(int device, struct reading_memory_type *reading)
 	uint8_t byte_L;
 	int16_t conv;
 	
-	reading->timestamp = systimer_get_32bit_time();
+	reading->timestamp = systimer_get_us_32bit();
 			
 	// We start a SPI multibyte read of sensors
 	spi_begin(device);

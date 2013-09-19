@@ -73,6 +73,7 @@ void static_calibration(struct mpu60x0_stateType *mpu60x0_state)
 	for (int i=0; i<NUM_FACES; i++)
 		mpu60x0_get_reading( shape_cs_mappings[i], mpu60x0_state[i], &(reading_memory[i]) );
 	
+	/* FIXME: should use this orientation stuff when outputting! */
 	double orientations[NUM_FACES][sizeof(struct reading_memory_type)/sizeof(double)];
 	find_orientation(reading_memory, orientations);
 	
@@ -91,6 +92,7 @@ void static_calibration(struct mpu60x0_stateType *mpu60x0_state)
 			divisor++;
 			
 			mpu60x0_get_reading( shape_cs_mappings[i], mpu60x0_state[i], &(reading_memory[i]) );
+			/* ISO_80000-3 defines 1g as 9.80665 ms/2 */
 			
 			sum_results(totals, reading_memory);
 			

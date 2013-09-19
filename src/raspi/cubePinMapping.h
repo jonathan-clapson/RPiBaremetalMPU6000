@@ -20,6 +20,7 @@
 #define INT6	8
 #define CS6		7
 
+
 #define MPU_DEV1 CS1
 #define MPU_DEV2 CS2
 #define MPU_DEV3 CS3
@@ -29,4 +30,13 @@
 
 extern char shape_cs_mappings[];
 
+const double shape_accel_calibration[NUM_FACES][3];
+
+const double shape_gyro_calibration[NUM_FACES][3];
+
+const double shape_temp_calibration[NUM_FACES];
+
+const double shape_orientation[NUM_FACES][3];
+	
 #endif /* __CUBEPINMAPPING_H__ */
+

@@ -13,6 +13,7 @@
 #include "vector.h"
 #include "calibrate.h"
 #include "integrate.h"
+#include "main_readings.h"
 
 #include "config.h"
 
@@ -61,7 +62,7 @@ int select_mode()
 	while (menu_select[0] > '9' || menu_select[0] < '0')
 	{
 		//FIXME: should clear uart rxbuf here
-		uart_puts("select mode\r\n(1) calibration\r\n(2) run\r\n");
+		uart_puts("select mode\r\n(0)get readings\r\n(1) calibration\r\n(2) run\r\n");
 		
 		uart_get_line(menu_select, sizeof(menu_select));
 		uart_puts(menu_select);		
@@ -125,13 +126,22 @@ __attribute__((no_instrument_function)) void not_main(void)
 	
 	flag = 0;
 	
+	unsigned int prevTs = 0;
+	GPIO_OUTPUT_LEVEL prevLevel = GPIO_OUTPUT_HIGH;
+	
 	switch (mode)
 	{
+		case 0:
+			main_readings(mpu60x0_state);
+			return;
 		case 1:
 			static_calibration(mpu60x0_state);
+			return;		
+		case 2:
+			main_debug(mpu60x0_state);
 			return;
 		default:
-			main_debug(mpu60x0_state);
-			break;
+			printf("invalid mode\n");
+			return;
 	}
 }

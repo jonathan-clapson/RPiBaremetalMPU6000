@@ -19,14 +19,14 @@ const volatile unsigned int SYSTIMER_C3 = 0x20003018; /* System Timer Compare 3 
 
 int timers[SYSTIMER_NUM_TIMERS]; /* a bitflag based char could be used for better memory efficiency, this is nicer to read */
 
-unsigned int systimer_get_32bit_time ( void )
+unsigned int systimer_get_us_32bit ( void )
 {
 	//return read_mmap_register(SYSTIMER_CLO);
 	unsigned int x = *(unsigned int *)SYSTIMER_CLO;
 	return x;
 }
 
-long unsigned int systimer_get_64bit_time ( void )
+long unsigned int systimer_get_us_64bit ( void )
 {
 	/* 
 	 * FIXME: i am unsure how to implement this as I have yet to work out how the timer increments
@@ -72,7 +72,7 @@ int systimer_alloc ( int timeout )
 	timers[timer] = 1;
 	
 	//set timeout
-	int current_time = systimer_get_32bit_time();
+	int current_time = systimer_get_us_32bit();
 	write_mmap_register(SYSTIMER_C0 +4*timer, current_time + timeout);
 	
 	//reset timeout flag
