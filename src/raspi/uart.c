@@ -1,3 +1,7 @@
+/*!	\file uart.c
+ * 	\brief HAL uart functionality
+ */
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -8,6 +12,12 @@
 
 #include "mpu60x0.h"
 
+/*!	\fn int calc_baud_num(int baud)
+ *	\brief Converts a serial baud rate to the number that must be supplied to the baud register to achieve that rate
+ * 
+ *	@param[in] baud The desired baud rate
+ * 	\return value to write to the baud rate register
+ */
 int calc_baud_num(int baud)
 {
 	const int SYSCLK_FREQ = 250000000;	
@@ -17,6 +27,9 @@ int calc_baud_num(int baud)
 	return regval;
 }
 
+/*!	\fn void uart_init(void)
+ *	\brief Initialises the UART0 hardware
+ */
 void uart_init(void)
 {
 	//enable 
@@ -53,6 +66,10 @@ void uart_init(void)
     PUT32(AUX_MU_CNTL_REG,0x2|0x1);	
 }
 
+/*!	\fn void uart_putc ( char c )
+ *	\brief Send a character through UART0
+ *	@param[in] c 8 bit value to send using the uart device
+ */
 void uart_putc ( char c )
 {
     while(1)
@@ -62,6 +79,12 @@ void uart_putc ( char c )
     PUT32(AUX_MU_IO_REG,c);
 }
 
+/*!	\fn void uart_putc ( char c )
+ *	\brief Receive a character through UART0 (Non-blocking)
+ *	@param[in] c pointer to an 8 bit location to store the value received from the uart device
+ * 	\return 0 on success, -1 on failure
+ * 	\todo make this use the codes that should be defined in error.h
+ */
 int uart_getc(char *c)
 {
 	/* if data is available return it, otherwise indicate failure */
@@ -74,6 +97,13 @@ int uart_getc(char *c)
 	return -1;
 }
 
+/*!	\fn void uart_get_line(char *buf, size_t len)
+ *	\brief Receive a line from uart (Blocking read)
+ * 	
+ * 	Reads data from uart0, storing in incremental locations starting from buf. Stops when '\n' is received or when len bytes have been read.
+ *	@param[in] buf pointer to a memory location to write to. Must be able to hold at least len bytes.
+ * 	@param[in] len the maximum number of bytes to read
+ */
 void uart_get_line(char *buf, size_t len)
 {
 	int i;
@@ -92,6 +122,10 @@ void uart_get_line(char *buf, size_t len)
 	buf[i] = '\0';
 }
 
+/*!	\fn void void uart_puts(char *string)
+ *	\brief Writes a c string to the uart device (blocking)
+ *	@param[in] string pointer to a c string to send through uart
+ */
 void uart_puts(char *string)
 {
 	for (; *string != '\0'; string++)
@@ -100,12 +134,22 @@ void uart_puts(char *string)
 	}	
 }
 
+/*!	\fn void uart_putbuf(char *buf, int count)
+ *	\brief Writes len characters stored in buf
+ *	@param[in] buf data set to send through uart
+ * 	@param[in] count number of bytes to send
+ */
 void uart_putbuf(char *buf, int count)
 {
 	for (int i=0; i<count; i++)
 		uart_putc(*buf++);
 }
 
+/*!	\fn void uart_put_readings(struct reading_memory_type *reading_memory, int num_faces)
+ *	\brief Writes a set of readings to the uart device, via the protocol which is described in the final report
+ *	@param[in] reading_memory a set of readings to be sent using the protocol
+ * 	@param[in] the number of readings in the set
+ */
 void uart_put_readings(struct reading_memory_type *reading_memory, int num_faces)
 {
 	char chunk[500];

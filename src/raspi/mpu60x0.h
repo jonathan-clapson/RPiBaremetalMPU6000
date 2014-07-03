@@ -1,3 +1,8 @@
+/*!	\file mpu60x0.h
+ * 	\brief Methods for interacting with the mpu6000.
+ * 
+ * 	Methods for interacting with the mpu6000. Also defines the data type used to store unprocessed and processed sensor data
+ */
 #ifndef __MPU60X0_H__
 #define __MPU60X0_H__
 
@@ -26,6 +31,7 @@ struct reading_memory_type {
 };
 
 void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, struct reading_memory_type *reading);
+void mpu60x0_get_reading_raw(int device, struct reading_memory_type *reading);
 int mpu60x0_init(int device, struct mpu60x0_stateType *mpu60x0_state);
 
 #endif

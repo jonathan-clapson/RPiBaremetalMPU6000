@@ -1,3 +1,10 @@
+/*!	\file systimer.c
+ * 	\brief HAL system timers API
+ * 	
+ * 	Provides functions to read system time. Also provides interrupt driven timers which will 'call you back' when the timeout expires :D
+ * 	\todo the timers are untested. Reading system time works fine though xP
+ */
+
 #include "support.h"
 #include "error.h"
 
@@ -19,6 +26,10 @@ const volatile unsigned int SYSTIMER_C3 = 0x20003018; /* System Timer Compare 3 
 
 int timers[SYSTIMER_NUM_TIMERS]; /* a bitflag based char could be used for better memory efficiency, this is nicer to read */
 
+/*!	\fn unsigned int systimer_get_us_32bit ( void )
+ *	\brief Retrieve the current 32bit system time 
+ * 	\return the current system time in microseconds
+ */
 unsigned int systimer_get_us_32bit ( void )
 {
 	//return read_mmap_register(SYSTIMER_CLO);
@@ -26,20 +37,23 @@ unsigned int systimer_get_us_32bit ( void )
 	return x;
 }
 
+/*!	\fn long unsigned int systimer_get_us_64bit ( void )
+ *	\brief Retrieve the current 64bit system time 
+ * 	\return the current system time in microseconds
+ * 	\todo i am unsure how to implement this as I have yet to work out how the timer increments
+ *	there is no way to pause the free running timer but it must be read in two reads :S 
+ *	this means it is necessary to read it twice to ensure that any rollover of the lower 32bits is accounted for
+ */
 long unsigned int systimer_get_us_64bit ( void )
 {
-	/* 
-	 * FIXME: i am unsure how to implement this as I have yet to work out how the timer increments
-	 * there is no way to pause the free running timer but it must be read in two reads :S 
-	 * this means it is necessary to read it twice to ensure that any rollover of the lower 32bits is accounted for
-	 */
 	 return 0;
 }
 
 /* functions below here are untested */
 
-/* 
- * initialise hardware timer use 
+/*!	\fn systimer_init()
+ *	\brief Initialise structure used to look after hardware timers
+ * 	\return NO_ERR 
  */
 int systimer_init()
 {
@@ -48,9 +62,13 @@ int systimer_init()
 	return ERR_NOERR;	
 }
 
-/* 
- * systimer_alloc is used to set a timeout in hardware 
- * up to 4 timers can be used at once
+/*!	\fn systimer_alloc ( int timeout )
+ *	\brief Request a new timer which will call back after an elapsed time
+ * 
+ * 	systimer_alloc is used to get the hardware to interrupt after a specified time has ellapsed. The Raspberry Pi hardware supports up to 4 timers being used at once.
+ * 	\return a non-negative timer number that has been allocated for usage. On error returns -1
+ * 	\todo this shoulud use error codes in error.h
+ * 	@param the time to wait in microseconds before interrupting
  */
 int systimer_alloc ( int timeout )
 {	
@@ -81,8 +99,10 @@ int systimer_alloc ( int timeout )
 	return timer;
 }
 
-/* 
- * returns whether the timer has timed out or not 
+/*!	\fn int systimer_has_timed_out( int timer )
+ *	\brief Returns whether the timer has timed out or not
+ * 	\return 1 if it has timed out. 0 if it has not.
+ * 	@param timer a timer number allocated by systimer_alloc
  */
 int systimer_has_timed_out( int timer )
 {
@@ -94,8 +114,9 @@ int systimer_has_timed_out( int timer )
 	return 0;	
 }
 
-/*
- * releases a timer
+/*!	\fn void systimer_free( int timer )
+ *	\brief Releases a timer so it can be reallocated later
+ * 	@param timer a timer number allocated by systimer_alloc
  */
 void systimer_free( int timer )
 {

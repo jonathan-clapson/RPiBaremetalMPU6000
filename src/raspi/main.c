@@ -1,10 +1,13 @@
+/*!	\file main.c
+ * 	\brief This file performs various HAL initialisations, receives a mode over serial, and then launches the respective routine for that mode
+ */
+
 #include <stdio.h>
 #include <stdint.h>
 #include <math.h>
 #include <string.h>
 #include <irq.h>
 
-#include "raspi.h"
 #include "mpu60x0.h"
 #include "uart.h"
 #include "support.h"
@@ -21,6 +24,11 @@
 
 int flag; 
 
+/*!	\fn void gpio_irq ( void )
+ *	\brief Callback routine for interrupts caused by the gpio hardware
+ * 	
+ * 	Need to ensure interrupts are cleared. (Write all 1's to GPEDS0, GPEDS1). This should be abstracted by the GPIO hardware abstraction layer but isnt yet.
+ */
 void gpio_irq ( void )
 {
 	volatile unsigned int *GPEDS0 =	(unsigned int*) 0x20200040;
@@ -33,6 +41,10 @@ void gpio_irq ( void )
 	uart_puts("interrupt triggered\n");
 }
 
+/*!	\fn void gpio_set_interrupts()
+ *	\brief Configures gpio's to receive interrupts from MPU6000 devices\
+ * 	\todo This should probably be moved to cubePinMappings, as the way its currently written is cube dependant. It's probably better to write this in a way it can work with NUM_FACES, maybe add all these to an array NUM_FACES long and iterate through it?
+ */
 void gpio_set_interrupts()
 {
 	/* set interrupt pins as input */
@@ -52,8 +64,10 @@ void gpio_set_interrupts()
 	irq_gpio_falling_edge_en(INT6);
 }
 
-/* Mode select on powerup 
- * currently only supports numbers from 0 to 9
+/*!	\fn int select_mode()
+ *	\brief Uart Mode selection on power up
+ * 	\return Returns a valid mode (loops until it receive a valid mode)
+ * 	\todo this is currently written pretty dodgily coz i wanted it done. Will only work for numbers that can be represented by a single ascii character ie [0-9], need to use atoi if its available from newlib, otherwise make something similar
  */
 int select_mode()
 {
@@ -70,8 +84,11 @@ int select_mode()
 	return menu_select[0] - '0';
 }
 
-//extern void enable_interrupts (void);
-
+/*!	\fn __attribute__((no_instrument_function)) void not_main(void)
+ *	\brief The main, or not so main function. 
+ * 
+ * 	not_main is a thing i picked up from some example code online and haven't done anything with it since :S This is the entry point of the c program. 
+ */
 __attribute__((no_instrument_function)) void not_main(void)
 {	
 	/* board initialisation */

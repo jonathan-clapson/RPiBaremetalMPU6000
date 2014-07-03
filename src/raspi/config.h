@@ -1,3 +1,10 @@
+/*!	\file config.h
+ * 	\brief Header file used to set which pin mapping to use for the currently connected sensor configuration.
+ * 
+ * 	To change pin mapping configurations change the #include to include the file for the desired sensor configuration.
+ * 	\todo It would be nice to be able to store 'sensor configuration files' on the sd card so the desired config can be chosen at runtime.
+ */
+
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 

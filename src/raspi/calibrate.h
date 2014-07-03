@@ -1,3 +1,7 @@
+/*!	\file calibrate.h
+ * 	\brief Header file exporting the main calibration routine
+ */
+
 #ifndef __CALIBRATE_H__
 #define __CALIBRATE_H__
 

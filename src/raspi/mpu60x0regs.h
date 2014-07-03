@@ -1,3 +1,6 @@
+/*!	\file mpu60x0regs.h
+ * 	\brief Background support for MPU6000 Protocol
+ */
 /*
 * Copyright (C) 2012 Invensense, Inc.
 *

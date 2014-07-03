@@ -1,3 +1,7 @@
+/*!	\file integrate.h
+ * 	\brief Provides integration routines
+ */
+
 #ifndef __INTEGRATE_H__
 #define __INTEGRATE_H__
 

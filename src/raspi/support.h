@@ -1,3 +1,7 @@
+/*!	\file support.h
+ * 	\brief HAL Support Functions
+ */
+
 #ifndef __SUPPORT_H__
 #define __SUPPORT_H__
 

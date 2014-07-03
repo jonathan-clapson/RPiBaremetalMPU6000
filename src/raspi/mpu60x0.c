@@ -1,3 +1,8 @@
+/*!	\file mpu60x0.c
+ * 	\brief Methods for interacting with the mpu6000.
+ * 
+ * 	Methods for interacting with the mpu6000. Also devines the data type used to store unprocessed and processed sensor data
+ */
 #include <stdint.h>
 
 #include "support.h"
@@ -7,6 +12,10 @@
 #include "uart.h"
 #include "systimer.h"
 
+/*!	\fn void mpu60x0_enable_interrupt( int device )
+ *	\brief Configures the MPU6000 so interrupt pins are triggered when new data is ready
+ *	@param[in] device The spi device to enable interrupts on
+ */
 void mpu60x0_enable_interrupt( int device )
 {
 	//interrupt is by default active high, disabling latch (int pin is asserted for 50uS then dropped)
@@ -17,6 +26,15 @@ void mpu60x0_enable_interrupt( int device )
 	spi_write(device, INV_MPU60x0_REG_INT_ENABLE, INV_MPU60x0_BIT_DATA_RDY_EN);//INV_MPU60x0_BIT_DATA_RDY_EN);	
 }
 
+/*!	\fn int mpu60x0_init(int device, struct mpu60x0_stateType *mpu60x0_state)
+ *	\brief Initialise an mpu6000 device
+ * 	
+ * 	Reset the device
+ * 	Read the i2c whoami register to determine if the device is working correctly (at least as an spi device) 	
+ *	@param[in] device The spi device to enable interrupts on
+ * 	@param[out] mpu60x0_state pointer to a state structure to be updated
+ * 	\return whether the read of the whoami register was successful
+ */
 int mpu60x0_init(int device, struct mpu60x0_stateType *mpu60x0_state)
 {
 	uint8_t data;
@@ -52,6 +70,14 @@ int mpu60x0_init(int device, struct mpu60x0_stateType *mpu60x0_state)
 	return data==INV_MPU60x0_BIT_ID;
 }
 
+/*!	\fn void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, struct reading_memory_type *reading)
+ *	\brief Obtain a set of readings from the device
+ * 
+ * 	A set of readings is a new set of data for each of accelerometers, gyrometers, temperature sensing and timestamps.
+ *	@param[in] device The spi device to enable interrupts on
+ *	@param[in] mpu60x0_state a pointer to a state of the sensor which is used to determine the conversion ratios
+ * 	@param[out] reading a pointer to a sensor reading structure this function will update
+ */
 void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, struct reading_memory_type *reading)
 {
 	uint8_t byte_H;
@@ -113,6 +139,13 @@ void mpu60x0_get_reading(int device, struct mpu60x0_stateType mpu60x0_state, str
 
 /*
  * This is a fake raw function, it doesn't actually pass the raw data, but converts the raw data to a double so i can be lazy :)
+ */
+/*!	\fn void mpu60x0_get_reading_raw(int device, struct reading_memory_type *reading)
+ *	\brief Obtain a set of "raw" readings from the device
+ * 
+ * 	The data returned from this function is actually the raw 16bit integer data converted to a double. This makes it easier when dealing with the serial protocol defined in the final report
+ *	@param[in] device The spi device to enable interrupts on
+ * 	@param[out] reading a pointer to a sensor reading structure this function will update
  */
 void mpu60x0_get_reading_raw(int device, struct reading_memory_type *reading)
 {

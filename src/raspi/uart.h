@@ -1,3 +1,8 @@
+/*!	\file uart.h
+ * 	\brief HAL uart functionality
+ * 	\todo hide all the defines in this file away, there is no reason the outside world would wish to see them. They should be in uart.c
+ */
+
 #ifndef __UART_H__
 #define __UART_H__
 

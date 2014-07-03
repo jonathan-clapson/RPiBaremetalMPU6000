@@ -1,11 +1,25 @@
+/*!	\file gpio.c
+ * 	\brief HAL functions for controlling the Raspberry Pi GPIO Hardware
+ * 	
+ * 	This file contains functions for setting up and using the GPIO pins
+ */
+
 #include "gpio.h"
 #include "error.h"
 
+/*! \cond HIDDEN_SYMBOLS */
 volatile unsigned int *GPIO_GPFSEL0 =  (unsigned int *) 0x20200000;
 volatile unsigned int *GPIO_GPSET0  =  (unsigned int *) 0x2020001C;
 volatile unsigned int *GPIO_GPCLR0  =  (unsigned int *) 0x20200028;
 volatile unsigned int *GPIO_GPLEV0  =  (unsigned int *) 0x20200034;
+/*! \endcond */
 
+/*!	\fn int gpio_function_select(unsigned int pin, FSEL sel)\
+ *	\brief Sets the mode of a gpio hardware pin, this pin is numbered according to the underlying hardware, numberings can be found in the broadcom datasheet as well as at: http://elinux.org/RPi_Low-level_peripherals
+ * 	\param[in] pin the hardware pin to set the function of
+ * 	\param[in] sel the new operation mode for the pin
+ * 	\return ERR_NOERR on success, ERR_GPIO_INVALID_PIN on failure
+ */
 int gpio_function_select(unsigned int pin, FSEL sel)
 {
 	/* get correct register for pin */
@@ -33,10 +47,12 @@ int gpio_function_select(unsigned int pin, FSEL sel)
 }
 
 
-/*
- * Sets a pin configured as an output to logic high or low
- * GPIO_OUTPUT_LOW = low
- * GPIO_OUTPUT_HIGH = high
+/*!	\fn int gpio_set_output_level (int pin, GPIO_OUTPUT_LEVEL level)
+ *	\brief Sets the output level of a pin configured as a GPIO Output.
+ * 	
+ * 	This will also set the level of a pin configured for input, however the level will not be applied until the pin is configured as an output.
+ * 	\param[in] pin the hardware pin to set the function of
+ * 	\param[in] level the logic voltage level to set the pin to
  */
 int gpio_set_output_level (int pin, GPIO_OUTPUT_LEVEL level)
 {

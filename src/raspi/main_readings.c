@@ -1,4 +1,6 @@
-
+/*!	\file main_readings.c
+ * 	\brief Functions for continuously receiving data from MPU6000 sensors, integrating data, converting gyro data into a global coordinate space and then writing the data to uart.
+ */
 #include <string.h>
 
 #include "calibrate.h"
@@ -21,6 +23,12 @@ int flag;
  * chip 5 = back
  */
 
+/*!	\fn void applyCalibration(struct reading_memory_type *readings)
+ *	\brief Applies removal of calibration offsets as defined in the shape configuration file
+ * 	
+ * 
+ *	@param[in,out] readings a pointer to readings to correct
+ */
 void applyCalibration(struct reading_memory_type *readings)
 {	
 	for (int j=0; j<NUM_FACES; j++)
@@ -38,7 +46,13 @@ void applyCalibration(struct reading_memory_type *readings)
 	//sensor->temp -= temp_calibration[sensor_num]
 }
 
-/* FIXME: don't read this or try to understand it, it blew joshes mind. Replace this with real rotation code (maybe matrices, quarternion etc?) */
+/*!	\fn void rotate_to_global(struct reading_memory_type *readings)
+ *	\brief Rotates orientation data into global coordinate space
+ * 
+ * 	Don't read this or try to understand it, it blew joshes mind. Replace this with real rotation code (maybe matrices, quarternion etc?) as soon as possible. This basically does swaps the values of each axes according to orientation of board :S 
+ * 
+ *	@param[in,out] readings A pointer to readings to rotate into global coordinate space
+ */
 void rotate_to_global(struct reading_memory_type *readings)
 {
 	/*
@@ -69,7 +83,7 @@ void rotate_to_global(struct reading_memory_type *readings)
 					printf("cube mappings are so broken the world might explode!\n");
 					return;
 			}
-			/* if you don't know what this does, look up c ternary operator */
+			/* if you really want to know what this does, look up c ternary operator */
 			int index = cube_mapping[i][j]<0 ? cube_mapping[i][j]*-1.0 : cube_mapping[i][j];
 			
 			ptr[j] = cube_mapping[i][j]<0 ? -1.0*o[index-1] : o[index-1];			
@@ -77,6 +91,13 @@ void rotate_to_global(struct reading_memory_type *readings)
 	};	
 }
 
+/*!	\fn void main_readings (struct mpu60x0_stateType *mpu60x0_state)
+ *	\brief Main routine for static sensor calibration
+ * 	
+ * 	This routine continuously reads sensor data and produces integrated, static offset corrected, data in which orientation data is rotated into a global coordinate space. The data is output over uart. This data is currently used with the opengl visualisation tool.
+ * 
+ *	@param[in] mpu60x0_state the current configuration of each sensor (this is an array of mpu60x0_stateType for each sensor to be used in this function) 
+ */
 void main_readings (struct mpu60x0_stateType *mpu60x0_state)
 {
 	struct reading_memory_type current_readings[NUM_FACES] = {{0}}; /* = malloc(read_rate*read_time*sizeof(struct reading_memory_type)*NUM_FACES); */	

@@ -1,3 +1,10 @@
+/*!	\file systimer.h
+ * 	\brief HAL system timers API
+ * 	
+ * 	Provides functions to read system time. Also provides interrupt driven timers which will 'call you back' when the timeout expires :D
+ * 	\todo the timers are untested. Reading system time works fine though xP
+ */
+
 #ifndef __SYSTIMER_H__
 #define __SYSTIMER_H__
 

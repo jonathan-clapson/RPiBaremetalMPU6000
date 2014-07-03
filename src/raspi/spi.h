@@ -1,3 +1,7 @@
+/*!	\file spi.c
+ * 	\brief HAL SPI functionality
+ */
+
 #ifndef __SPI_H__
 #define __SPI_H__
 

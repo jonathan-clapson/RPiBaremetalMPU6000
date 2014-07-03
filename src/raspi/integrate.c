@@ -1,6 +1,18 @@
+/*!	\file integrate.c
+ * 	\brief Provides integration routines
+ */
+
 #include "vector.h"
 #include <math.h>
 
+/*!	\fn double findArea(double last_point, double current_point, double timestep)
+ *	\brief Calculates the area between two points with a given timestep assuming they form a trapezium shape.
+ *  
+ *	@param[in] last_point the data point before the current one
+ * 	@param[in] current_point the current data point
+ * 	@param[in] timestep the different in time between the current and last data point
+ * 	\return The area of trapezium made up from the input data
+ */
 double findArea(double last_point, double current_point, double timestep)
 {
 	double rectSize = last_point*timestep;
@@ -14,10 +26,14 @@ double findArea(double last_point, double current_point, double timestep)
 	return rectSize+triSize;
 }
 
-/*
- * result = the location for integrand results to be stored
- * values = the location for x,y,z updates
- * timestep = the change in timestep between current and previous readings
+/*!	\fn void integrate_vector(struct vector *result, struct vector *values, struct vector *last_values, unsigned int timestep)
+ *	\brief Updates the running integration total.
+ * 	This integration uses a running total of trapezium rule. Ie as new data points are read, they must be fed to this function. 
+ *  
+ *	@param[in] result pointer to a vector to store the result
+ * 	@param[in] values pointer to the most recent values
+ * 	@param[in] last_values pointer to the next most recent values
+ * 	@param[in] timestep the different in time between values and last_values being read
  */
 void integrate_vector(struct vector *result, struct vector *values, struct vector *last_values, unsigned int timestep)
 {		
