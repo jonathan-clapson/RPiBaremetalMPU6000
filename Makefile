@@ -1,4 +1,5 @@
 ARCH = arm-none-eabi
+PREFIX = /opt/gnuarm
 CC = ${ARCH}-gcc
 CPP = ${ARCH}-g++
 AS = ${ARCH}-as
@@ -6,7 +7,7 @@ LD = ${ARCH}-ld
 AR = ${ARCH}-ar
 OBJCOPY = ${ARCH}-objcopy
 
-LIB = -L /mnt/scratch/gnuarm/arm-none-eabi/lib/ -L/mnt/scratch/gnuarm/lib/gcc/arm-none-eabi/4.8.1
+LIB = -L${PREFIX}/arm-none-eabi/lib/ -L${PREFIX}/lib/gcc/arm-none-eabi/4.8.1
 
 PLATFORM = raspi
 
